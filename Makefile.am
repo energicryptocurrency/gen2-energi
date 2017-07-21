@@ -11,7 +11,7 @@ endif
 
 BITCOIND_BIN=$(top_builddir)/src/dashd$(EXEEXT)
 BITCOIN_QT_BIN=$(top_builddir)/src/qt/dash-qt$(EXEEXT)
-BITCOIN_CLI_BIN=$(top_builddir)/src/energi-cli$(EXEEXT)
+BITCOIN_CLI_BIN=$(top_builddir)/src/dash-cli$(EXEEXT)
 BITCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
 
 OSX_APP=Dash-Qt.app
