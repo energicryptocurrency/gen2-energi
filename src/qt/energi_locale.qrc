@@ -1,0 +1,20 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource prefix="/translations">
+        <file alias="bg">locale/energi_bg.qm</file>
+        <file alias="de">locale/energi_de.qm</file>
+        <file alias="en">locale/energi_en.qm</file>
+        <file alias="es">locale/energi_es.qm</file>
+        <file alias="fi">locale/energi_fi.qm</file>
+        <file alias="fr">locale/energi_fr.qm</file>
+        <file alias="it">locale/energi_it.qm</file>
+        <file alias="ja">locale/energi_ja.qm</file>
+        <file alias="pl">locale/energi_pl.qm</file>
+        <file alias="pt">locale/energi_pt.qm</file>
+        <file alias="ru">locale/energi_ru.qm</file>
+        <file alias="sk">locale/energi_sk.qm</file>
+        <file alias="sv">locale/energi_sv.qm</file>
+        <file alias="vi">locale/energi_vi.qm</file>
+        <file alias="zh_CN">locale/energi_zh_CN.qm</file>
+        <file alias="zh_TW">locale/energi_zh_TW.qm</file>
+    </qresource>
+</RCC>

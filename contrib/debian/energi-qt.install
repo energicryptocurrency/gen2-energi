@@ -1,0 +1,6 @@
+usr/local/bin/energi-qt usr/bin
+share/pixmaps/energi32.xpm usr/share/pixmaps
+share/pixmaps/energi16.xpm usr/share/pixmaps
+share/pixmaps/energi128.png usr/share/pixmaps
+debian/energi-qt.desktop usr/share/applications
+debian/energi-qt.protocol usr/share/kde4/services/
