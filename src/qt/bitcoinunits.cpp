@@ -22,6 +22,7 @@ QList<BitcoinUnits::Unit> BitcoinUnits::availableUnits()
     unitlist.append(EGI);
     unitlist.append(mEGI);
     unitlist.append(uEGI);
+    unitlist.append(duffs);
     return unitlist;
 }
 
@@ -32,6 +33,8 @@ bool BitcoinUnits::valid(int unit)
     case EGI:
     case mEGI:
     case uEGI:
+    case duffs:
+        return true;
     default:
         return false;
     }
@@ -46,6 +49,7 @@ QString BitcoinUnits::name(int unit)
             case EGI: return QString("EGI");
             case mEGI: return QString("mEGI");
             case uEGI: return QString::fromUtf8("μEGI");
+            case duffs: return QString("duffs");
             default: return QString("???");
         }
     }
@@ -56,6 +60,7 @@ QString BitcoinUnits::name(int unit)
             case EGI: return QString("tEGI");
             case mEGI: return QString("mtEGI");
             case uEGI: return QString::fromUtf8("μtEGI");
+            case duffs: return QString("tduffs");
             default: return QString("???");
         }
     }
@@ -70,6 +75,7 @@ QString BitcoinUnits::description(int unit)
             case EGI: return QString("Energi");
             case mEGI: return QString("Milli-Energi (1 / 1" THIN_SP_UTF8 "000)");
             case uEGI: return QString("Micro-Energi (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+            case duffs: return QString("Ten Nano-Energi (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
             default: return QString("???");
         }
     }
@@ -80,6 +86,7 @@ QString BitcoinUnits::description(int unit)
             case EGI: return QString("TestEnergis");
             case mEGI: return QString("Milli-TestEnergi (1 / 1" THIN_SP_UTF8 "000)");
             case uEGI: return QString("Micro-TestEnergi (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+            case duffs: return QString("Ten Nano-TestEnergi (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
             default: return QString("???");
         }
     }
@@ -92,6 +99,7 @@ qint64 BitcoinUnits::factor(int unit)
     case EGI:  return 100000000;
     case mEGI: return 100000;
     case uEGI: return 100;
+    case duffs: return 1;
     default:   return 100000000;
     }
 }
@@ -103,6 +111,7 @@ int BitcoinUnits::decimals(int unit)
     case EGI: return 8;
     case mEGI: return 5;
     case uEGI: return 2;
+    case duffs: return 0;
     default: return 0;
     }
 }
