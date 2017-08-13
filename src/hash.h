@@ -26,6 +26,8 @@
 #include "crypto/sph_simd.h"
 #include "crypto/sph_echo.h"
 
+#include "crypto/egihash.h"
+
 #include <vector>
 
 typedef uint256 ChainCode;
@@ -155,7 +157,7 @@ inline uint256 Hash(const T1 p1begin, const T1 p1end,
     return result;
 }
 
-/** Compute the 256-bit hash of the concatenation of three objects. */
+/** Compute the 256-bit hash of the concatenation of four objects. */
 template<typename T1, typename T2, typename T3, typename T4>
 inline uint256 Hash(const T1 p1begin, const T1 p1end,
                     const T2 p2begin, const T2 p2end,
@@ -171,7 +173,7 @@ inline uint256 Hash(const T1 p1begin, const T1 p1end,
     return result;
 }
 
-/** Compute the 256-bit hash of the concatenation of three objects. */
+/** Compute the 256-bit hash of the concatenation of five objects. */
 template<typename T1, typename T2, typename T3, typename T4, typename T5>
 inline uint256 Hash(const T1 p1begin, const T1 p1end,
                     const T2 p2begin, const T2 p2end,
@@ -189,7 +191,7 @@ inline uint256 Hash(const T1 p1begin, const T1 p1end,
     return result;
 }
 
-/** Compute the 256-bit hash of the concatenation of three objects. */
+/** Compute the 256-bit hash of the concatenation of six objects. */
 template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 inline uint256 Hash(const T1 p1begin, const T1 p1end,
                     const T2 p2begin, const T2 p2end,
@@ -344,5 +346,17 @@ inline uint256 HashX11(const T1 pbegin, const T1 pend)
 
     return hash[10].trim256();
 }
+
+
+/* ----------- Egi Hash ------------------------------------------------ */
+template<typename T1>
+inline uint256 EgiHash(const T1 pbegin, const T1 pend)
+{
+    uint256 output_hash;
+    egihash_h256_compute( (EGIHASH_NAMESPACE(h256_t) * ) &output_hash, (void *) &pbegin[0], 
+            (uint64_t) ( (pend - pbegin) * sizeof(pbegin[0])) );
+    return output_hash;
+}
+
 
 #endif // BITCOIN_HASH_H

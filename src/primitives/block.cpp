@@ -12,7 +12,9 @@
 
 uint256 CBlockHeader::GetHash() const
 {
-    return HashX11(BEGIN(nVersion), END(nNonce));
+    // BEGIN(a) = ((char*)&(a))
+    // END(a)   = ((char*)&((&(a))[1]))
+    return EgiHash(BEGIN(nVersion), END(nNonce));
 }
 
 std::string CBlock::ToString() const
