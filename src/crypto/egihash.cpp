@@ -452,6 +452,7 @@ namespace egihash
         return hashimoto(header, nonce, full_size, [dataset](size_t const x){return dataset[x];});
     }
 
+#if 0
     bool test_function()
     {
         using namespace std;
@@ -535,6 +536,7 @@ namespace egihash
 
         return success;
     }
+#endif // 0
 }
 
 extern "C"

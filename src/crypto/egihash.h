@@ -9,7 +9,9 @@
 #ifdef __cplusplus
 namespace egihash
 {
+#if 0 // disabled for now
     bool test_function();
+#endif // 0
 }
 
 extern "C"
