@@ -16,7 +16,6 @@ static void Sleep100ms(benchmark::State& state)
 }
 
 BENCHMARK(Sleep100ms);
-// BENCHMARK(Sleep100ms); Dummy Ankit 11 Aug
 // Extremely fast-running benchmark:
 #include <math.h>
 
