@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     // Don't remove this, it's needed to access
     // QCoreApplication:: in the tests
     QCoreApplication app(argc, argv);
-    app.setApplicationName("Dash-Qt-test");
+    app.setApplicationName("Energi-Qt-test");
 
     SSL_library_init();
 

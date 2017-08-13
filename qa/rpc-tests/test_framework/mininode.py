@@ -1,4 +1,4 @@
-# mininode.py - Dash P2P network half-a-node
+# mininode.py - Energi P2P network half-a-node
 #
 # Distributed under the MIT/X11 software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -6,12 +6,12 @@
 # This python code was modified from ArtForz' public domain  half-a-node, as
 # found in the mini-node branch of http://github.com/jgarzik/pynode.
 #
-# NodeConn: an object which manages p2p connectivity to a dash node
+# NodeConn: an object which manages p2p connectivity to an energi node
 # NodeConnCB: a base class that describes the interface for receiving
 #             callbacks with network messages from a NodeConn
 # CBlock, CTransaction, CBlockHeader, CTxIn, CTxOut, etc....:
 #     data structures that should map to corresponding structures in
-#     dash/primitives
+#     energi/primitives
 # msg_block, msg_tx, msg_headers, etc.:
 #     data structures that represent network messages
 # ser_*, deser_*: functions that handle serialization/deserialization

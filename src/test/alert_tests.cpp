@@ -146,7 +146,7 @@ BOOST_FIXTURE_TEST_SUITE(Alert_tests, ReadAlerts)
 // - update alerts in GenerateAlertTests() (optional)
 // - enable code below (#if 1)
 // - replace "fffffffffffffffffffffffffffffffffffffffffffffffffff" with the actual MAINNET privkey
-// - recompile and run "/path/to/test_dash -t Alert_test"
+// - recompile and run "/path/to/test_energi -t Alert_test"
 //
 // NOTE: make sure to disable code and remove alert privkey when you're done!
 //

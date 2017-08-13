@@ -68,11 +68,11 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode mode, 
     switch(tab)
     {
     case SendingTab:
-        ui->labelExplanation->setText(tr("These are your Dash addresses for sending payments. Always check the amount and the receiving address before sending coins."));
+        ui->labelExplanation->setText(tr("These are your Energi addresses for sending payments. Always check the amount and the receiving address before sending coins."));
         ui->deleteAddress->setVisible(true);
         break;
     case ReceivingTab:
-        ui->labelExplanation->setText(tr("These are your Dash addresses for receiving payments. It is recommended to use a new receiving address for each transaction."));
+        ui->labelExplanation->setText(tr("These are your Energi addresses for receiving payments. It is recommended to use a new receiving address for each transaction."));
         ui->deleteAddress->setVisible(false);
         break;
     }
