@@ -3,10 +3,10 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>org.dash.dashd</string>
+	<string>org.energi.energid</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/usr/local/bin/dashd</string>
+		<string>/usr/local/bin/energid</string>
 		<string>-daemon</string>
 	</array>
 	<key>RunAtLoad</key>

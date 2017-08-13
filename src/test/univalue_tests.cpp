@@ -7,7 +7,7 @@
 #include <string>
 #include <map>
 #include <univalue.h>
-#include "test/test_dash.h"
+#include "test/test_energi.h"
 
 #include <boost/test/unit_test.hpp>
 

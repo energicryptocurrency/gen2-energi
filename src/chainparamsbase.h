@@ -9,8 +9,8 @@
 #include <vector>
 
 /**
- * CBaseChainParams defines the base parameters (shared between dash-cli and dashd)
- * of a given instance of the Dash system.
+ * CBaseChainParams defines the base parameters (shared between energi-cli and energid)
+ * of a given instance of the Energi system.
  */
 class CBaseChainParams
 {

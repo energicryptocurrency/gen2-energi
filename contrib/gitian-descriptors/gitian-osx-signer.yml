@@ -1,5 +1,5 @@
 ---
-name: "dash-dmg-signer"
+name: "energi-dmg-signer"
 suites:
 - "trusty"
 architectures:
@@ -11,7 +11,7 @@ remotes:
 - "url": "https://github.com/dashpay/dash-detached-sigs.git"
   "dir": "signature"
 files:
-- "dash-osx-unsigned.tar.gz"
+- "energi-osx-unsigned.tar.gz"
 script: |
   WRAP_DIR=$HOME/wrapped
   mkdir -p ${WRAP_DIR}
@@ -28,10 +28,10 @@ script: |
     chmod +x ${WRAP_DIR}/${prog}
   done
 
-  UNSIGNED=dash-osx-unsigned.tar.gz
-  SIGNED=dash-osx-signed.dmg
+  UNSIGNED=energi-osx-unsigned.tar.gz
+  SIGNED=energi-osx-signed.dmg
 
   tar -xf ${UNSIGNED}
   ./detached-sig-apply.sh ${UNSIGNED} signature/osx
-  ${WRAP_DIR}/genisoimage -no-cache-inodes -D -l -probe -V "Dash-Core" -no-pad -r -dir-mode 0755 -apple -o uncompressed.dmg signed-app
+  ${WRAP_DIR}/genisoimage -no-cache-inodes -D -l -probe -V "Energi-Core" -no-pad -r -dir-mode 0755 -apple -o uncompressed.dmg signed-app
   ${WRAP_DIR}/dmg dmg uncompressed.dmg ${OUTDIR}/${SIGNED}

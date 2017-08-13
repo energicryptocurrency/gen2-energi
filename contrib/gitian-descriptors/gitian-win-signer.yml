@@ -1,5 +1,5 @@
 ---
-name: "bitcoin-win-signer"
+name: "energi-win-signer"
 suites:
 - "trusty"
 architectures:

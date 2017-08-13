@@ -1,7 +1,7 @@
-TESTS += test/test_dash
-bin_PROGRAMS += test/test_dash
+TESTS += test/test_energi
+bin_PROGRAMS += test/test_energi
 TEST_SRCDIR = test
-TEST_BINARY=test/test_dash$(EXEEXT)
+TEST_BINARY=test/test_energi$(EXEEXT)
 
 
 EXTRA_DIST += \
@@ -85,8 +85,8 @@ BITCOIN_TESTS =\
   test/sigopcount_tests.cpp \
   test/skiplist_tests.cpp \
   test/streams_tests.cpp \
-  test/test_dash.cpp \
-  test/test_dash.h \
+  test/test_energi.cpp \
+  test/test_energi.h \
   test/timedata_tests.cpp \
   test/transaction_tests.cpp \
   test/txvalidationcache_tests.cpp \
@@ -102,23 +102,23 @@ BITCOIN_TESTS += \
   test/rpc_wallet_tests.cpp
 endif
 
-test_test_dash_SOURCES = $(BITCOIN_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
-test_test_dash_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) -I$(builddir)/test/ $(TESTDEFS) $(EVENT_CFLAGS)
-test_test_dash_LDADD = $(LIBBITCOIN_SERVER) $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
+test_test_energi_SOURCES = $(BITCOIN_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
+test_test_energi_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) -I$(builddir)/test/ $(TESTDEFS) $(EVENT_CFLAGS)
+test_test_energi_LDADD = $(LIBBITCOIN_SERVER) $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
   $(BOOST_LIBS) $(BOOST_UNIT_TEST_FRAMEWORK_LIB) $(LIBSECP256K1)
-test_test_dash_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+test_test_energi_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 if ENABLE_WALLET
-test_test_dash_LDADD += $(LIBBITCOIN_WALLET)
+test_test_energi_LDADD += $(LIBBITCOIN_WALLET)
 endif
 
-test_test_dash_LDADD += $(LIBBITCOIN_CONSENSUS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
-test_test_dash_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) -static
+test_test_energi_LDADD += $(LIBBITCOIN_CONSENSUS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
+test_test_energi_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) -static
 
 if ENABLE_ZMQ
-test_test_dash_LDADD += $(ZMQ_LIBS)
+test_test_energi_LDADD += $(ZMQ_LIBS)
 endif
 
-nodist_test_test_dash_SOURCES = $(GENERATED_TEST_FILES)
+nodist_test_test_energi_SOURCES = $(GENERATED_TEST_FILES)
 
 $(BITCOIN_TESTS): $(GENERATED_TEST_FILES)
 
@@ -126,13 +126,13 @@ CLEAN_BITCOIN_TEST = test/*.gcda test/*.gcno $(GENERATED_TEST_FILES)
 
 CLEANFILES += $(CLEAN_BITCOIN_TEST)
 
-dash_test: $(TEST_BINARY)
+energi_test: $(TEST_BINARY)
 
-dash_test_check: $(TEST_BINARY) FORCE
+energi_test_check: $(TEST_BINARY) FORCE
 	$(MAKE) check-TESTS TESTS=$^
 
-dash_test_clean : FORCE
-	rm -f $(CLEAN_BITCOIN_TEST) $(test_test_dash_OBJECTS) $(TEST_BINARY)
+energi_test_clean : FORCE
+	rm -f $(CLEAN_BITCOIN_TEST) $(test_test_energi_OBJECTS) $(TEST_BINARY)
 
 check-local:
 	@echo "Running test/bitcoin-util-test.py..."
