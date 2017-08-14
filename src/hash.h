@@ -26,7 +26,7 @@
 #include "crypto/sph_simd.h"
 #include "crypto/sph_echo.h"
 
-#include "crypto/egihash.h"
+#include "egihash/egihash.h"
 
 #include <vector>
 
@@ -353,7 +353,7 @@ template<typename T1>
 inline uint256 EgiHash(const T1 pbegin, const T1 pend)
 {
     uint256 output_hash;
-    egihash_h256_compute( (EGIHASH_NAMESPACE(h256_t) * ) &output_hash, (void *) &pbegin[0], 
+    egihash_h256_compute( (EGINS(h256_t) * ) &output_hash, (void *) &pbegin[0],
             (uint64_t) ( (pend - pbegin) * sizeof(pbegin[0])) );
     return output_hash;
 }

@@ -146,6 +146,7 @@ static inline int hash(uint8_t* out, size_t outlen,
 }
 
 /*** Helper macros to define SHA3 and SHAKE instances. ***/
+// delim = 0x01 in etihash whereas -tiny has 0x06
 #define defshake(bits)                                            \
   int shake##bits(uint8_t* out, size_t outlen,                    \
                   const uint8_t* in, size_t inlen) {              \
@@ -157,7 +158,7 @@ static inline int hash(uint8_t* out, size_t outlen,
     if (outlen > (bits/8)) {                                      \
       return -1;                                                  \
     }                                                             \
-    return hash(out, outlen, in, inlen, 200 - (bits / 4), 0x06);  \
+    return hash(out, outlen, in, inlen, 200 - (bits / 4), 0x01);  \
   }
 
 /*** FIPS202 SHAKE VOFs ***/

@@ -1,15 +1,15 @@
-/* src/config/dash-config.h.  Generated from dash-config.h.in by configure.  */
-/* src/config/dash-config.h.in.  Generated from configure.ac by autoheader.  */
+/* src/config/energi-config.h.  Generated from energi-config.h.in by configure.  */
+/* src/config/energi-config.h.in.  Generated from configure.ac by autoheader.  */
 
-#ifndef DASH_CONFIG_H
+#ifndef ENERGI_CONFIG_H
 
-#define DASH_CONFIG_H
+#define ENERGI_CONFIG_H
 
 /* Define if building universal (internal helper macro) */
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
 /* Version Build */
-#define CLIENT_VERSION_BUILD 5
+#define CLIENT_VERSION_BUILD 0
 
 /* Version is release */
 #define CLIENT_VERSION_IS_RELEASE true
@@ -21,7 +21,7 @@
 #define CLIENT_VERSION_MINOR 12
 
 /* Build revision */
-#define CLIENT_VERSION_REVISION 1
+#define CLIENT_VERSION_REVISION 2
 
 /* Version is release */
 #define COPYRIGHT_YEAR 2017
@@ -30,7 +30,7 @@
 #define ENABLE_WALLET 1
 
 /* Define to 1 to enable ZMQ functions */
-#define ENABLE_ZMQ 0
+#define ENABLE_ZMQ 1
 
 /* parameter and return value type for __fdelt_chk */
 /* #undef FDELT_TYPE */
@@ -61,6 +61,9 @@
 
 /* Define this symbol if the consensus lib has been built */
 #define HAVE_CONSENSUS_LIB 1
+
+/* define if the compiler supports basic C++11 syntax */
+#define HAVE_CXX11 1
 
 /* Define to 1 if you have the declaration of `be16toh', and to 0 if you
    don't. */
@@ -302,22 +305,22 @@
 #define LT_OBJDIR ".libs/"
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "https://github.com/dashpay/dash/issues"
+#define PACKAGE_BUGREPORT "https://github.com/energicryptocurrency/energi/issues"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "Dash Core"
+#define PACKAGE_NAME "Energi Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Dash Core 0.12.1"
+#define PACKAGE_STRING "Energi Core 0.12.2"
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "dashcore"
+#define PACKAGE_TARNAME "energicore"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.12.1"
+#define PACKAGE_VERSION "0.12.2"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
@@ -342,10 +345,10 @@
 #define STRERROR_R_CHAR_P 1
 
 /* Define if dbus support should be compiled in */
-#define USE_DBUS 1
+/* #undef USE_DBUS */
 
 /* Define if QR support should be compiled in */
-#define USE_QRCODE 1
+/* #undef USE_QRCODE */
 
 /* UPnP support not compiled if undefined, otherwise value (0 or 1) determines
    default state */
@@ -374,4 +377,4 @@
 /* Define for large files, on AIX-style hosts. */
 /* #undef _LARGE_FILES */
 
-#endif //DASH_CONFIG_H
+#endif //ENERGI_CONFIG_H
