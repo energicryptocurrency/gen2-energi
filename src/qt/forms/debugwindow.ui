@@ -403,7 +403,7 @@
          <item>
           <widget class="QPushButton" name="openDebugLogfileButton">
            <property name="toolTip">
-            <string>Open the Dash Core debug log file from the current data directory. This can take a few seconds for large log files.</string>
+            <string>Open the Energi Core debug log file from the current data directory. This can take a few seconds for large log files.</string>
            </property>
            <property name="text">
             <string>&amp;Open</string>
@@ -487,7 +487,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../dash.qrc">
+            <iconset resource="../energi.qrc">
              <normaloff>:/icons/drkblue/remove</normaloff>:/icons/drkblue/remove</iconset>
            </property>
            <property name="shortcut">
@@ -524,16 +524,16 @@
            <item>
             <widget class="QSlider" name="sldGraphRange">
              <property name="minimum">
-              <number>1</number>
+              <number>0</number>
              </property>
              <property name="maximum">
-              <number>288</number>
+              <number>9</number>
              </property>
              <property name="pageStep">
-              <number>12</number>
+              <number>1</number>
              </property>
              <property name="value">
-              <number>6</number>
+              <number>3</number>
              </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -1583,7 +1583,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../dash.qrc"/>
+  <include location="../energi.qrc"/>
  </resources>
  <connections/>
 </ui>

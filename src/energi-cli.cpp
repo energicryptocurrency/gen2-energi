@@ -6,8 +6,8 @@
 
 #include "chainparamsbase.h"
 #include "clientversion.h"
-#include "rpcclient.h"
-#include "rpcprotocol.h"
+#include "rpc/client.h"
+#include "rpc/protocol.h"
 #include "util.h"
 #include "utilstrencodings.h"
 
@@ -75,10 +75,14 @@ static int AppInitRPC(int argc, char* argv[])
     //
     ParseParameters(argc, argv);
     if (argc<2 || mapArgs.count("-?") || mapArgs.count("-h") || mapArgs.count("-help") || mapArgs.count("-version")) {
-        std::string strUsage = _("Dash Core RPC client version") + " " + FormatFullVersion() + "\n";
+        std::string strUsage = _("Energi Core RPC client version") + " " + FormatFullVersion() + "\n";
         if (!mapArgs.count("-version")) {
             strUsage += "\n" + _("Usage:") + "\n" +
+<<<<<<< HEAD:src/energi-cli.cpp
                   "  energi-cli [options] <command> [params]  " + _("Send command to Dash Core") + "\n" +
+=======
+                  "  energi-cli [options] <command> [params]  " + _("Send command to Energi Core") + "\n" +
+>>>>>>> upstream/energi_v0:src/energi-cli.cpp
                   "  energi-cli [options] help                " + _("List commands") + "\n" +
                   "  energi-cli [options] help <command>      " + _("Get help for a command") + "\n";
 
@@ -92,7 +96,8 @@ static int AppInitRPC(int argc, char* argv[])
         }
         return EXIT_SUCCESS;
     }
-    if (!boost::filesystem::is_directory(GetDataDir(false))) {
+    bool datadirFromCmdLine = mapArgs.count("-datadir") != 0;
+    if (datadirFromCmdLine && !boost::filesystem::is_directory(GetDataDir(false))) {
         fprintf(stderr, "Error: Specified data directory \"%s\" does not exist.\n", mapArgs["-datadir"].c_str());
         return EXIT_FAILURE;
     }
@@ -100,6 +105,10 @@ static int AppInitRPC(int argc, char* argv[])
         ReadConfigFile(mapArgs, mapMultiArgs);
     } catch (const std::exception& e) {
         fprintf(stderr,"Error reading configuration file: %s\n", e.what());
+        return EXIT_FAILURE;
+    }
+    if (!datadirFromCmdLine && !boost::filesystem::is_directory(GetDataDir(false))) {
+        fprintf(stderr, "Error: Specified data directory \"%s\" from config file does not exist.\n", mapArgs["-datadir"].c_str());
         return EXIT_FAILURE;
     }
     // Check for -testnet or -regtest parameter (BaseParams() calls are only valid after this clause)

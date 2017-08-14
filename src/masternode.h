@@ -23,9 +23,13 @@ static const int MASTERNODE_WATCHDOG_MAX_SECONDS        = 120 * 60;
 static const int MASTERNODE_NEW_START_REQUIRED_SECONDS  = 180 * 60;
 
 static const int MASTERNODE_POSE_BAN_MAX_SCORE          = 5;
+
 //
 // The Masternode Ping Class : Contains a different serialize method for sending pings from masternodes throughout the network
 //
+
+// sentinel version before sentinel ping implementation
+#define DEFAULT_SENTINEL_VERSION 0x010001
 
 class CMasternodePing
 {
@@ -34,13 +38,17 @@ public:
     uint256 blockHash;
     int64_t sigTime; //mnb message times
     std::vector<unsigned char> vchSig;
+    bool fSentinelIsCurrent; // true if last sentinel ping was actual
+    uint32_t nSentinelVersion; // MSB is always 0, other 3 bits corresponds to x.x.x version scheme
     //removed stop
 
     CMasternodePing() :
         vin(),
         blockHash(),
         sigTime(0),
-        vchSig()
+        vchSig(),
+        fSentinelIsCurrent(false),
+        nSentinelVersion(DEFAULT_SENTINEL_VERSION)
         {}
 
     CMasternodePing(CTxIn& vinNew);
@@ -53,6 +61,14 @@ public:
         READWRITE(blockHash);
         READWRITE(sigTime);
         READWRITE(vchSig);
+        if(ser_action.ForRead() && (s.size() == 0))
+        {
+            fSentinelIsCurrent = false;
+            nSentinelVersion = DEFAULT_SENTINEL_VERSION;
+            return;
+        }
+        READWRITE(fSentinelIsCurrent);
+        READWRITE(nSentinelVersion);
     }
 
     void swap(CMasternodePing& first, CMasternodePing& second) // nothrow
@@ -66,6 +82,8 @@ public:
         swap(first.blockHash, second.blockHash);
         swap(first.sigTime, second.sigTime);
         swap(first.vchSig, second.vchSig);
+        swap(first.fSentinelIsCurrent, second.fSentinelIsCurrent);
+        swap(first.nSentinelVersion, second.nSentinelVersion);
     }
 
     uint256 GetHash() const
@@ -153,6 +171,12 @@ public:
         MASTERNODE_WATCHDOG_EXPIRED,
         MASTERNODE_NEW_START_REQUIRED,
         MASTERNODE_POSE_BAN
+    };
+
+    enum CollateralStatus {
+        COLLATERAL_OK,
+        COLLATERAL_UTXO_NOT_FOUND,
+        COLLATERAL_INVALID_AMOUNT
     };
 
     CTxIn vin;
@@ -244,6 +268,8 @@ public:
 
     bool UpdateFromNewBroadcast(CMasternodeBroadcast& mnb);
 
+    static CollateralStatus CheckCollateral(CTxIn vin);
+    static CollateralStatus CheckCollateral(CTxIn vin, int& nHeight);
     void Check(bool fForce = false);
 
     bool IsBroadcastedWithin(int nSeconds) { return GetAdjustedTime() - sigTime < nSeconds; }
@@ -290,6 +316,9 @@ public:
         return false;
     }
 
+    /// Is the input associated with collateral public key? (and there is 1000 DASH - checking if valid masternode)
+    bool IsInputAssociatedWithPubkey();
+
     bool IsValidNetAddr();
     static bool IsValidNetAddr(CService addrIn);
 
@@ -315,7 +344,7 @@ public:
 
     void RemoveGovernanceObject(uint256 nGovernanceObjectHash);
 
-    void UpdateWatchdogVoteTime();
+    void UpdateWatchdogVoteTime(uint64_t nVoteTime = 0);
 
     CMasternode& operator=(CMasternode from)
     {

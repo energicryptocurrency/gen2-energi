@@ -1,6 +1,20 @@
 Building Dash Core
 
-Use the autogen script to prepare the build environment.
+After you install the usual build tools and C++ development tools,
+Dash Core also needs some build dependencies which are not always provided
+by default by the OS package manager
+(in particular BerkeleyDB 4.8 for building with wallet support).
+
+Before trying to build, be sure to read one of these files,
+depending on your environment:
+
+  doc/build-unix.md
+  doc/build-openbsd.md
+  doc/build-osx.md
+  doc/build-windows.md
+
+After installing the needed dependencies,
+use the autogen script to prepare the build environment.
 
     ./autogen.sh
     ./configure
@@ -14,3 +28,42 @@ Always verify the signatures and checksums.
 See doc/build-*.md for instructions on building dashd,
 the intended-for-services, no-graphical-interface, reference
 implementation of Dash.
+
+
+-------------------------------
+On a new Ubuntu box
+free
+sudo dd if=/dev/zero of=/var/swap.img bs=1024k count=1000
+sudo mkswap /var/swap.img
+sudo swapon /var/swap.img
+free
+sudo chmod 0600 /var/swap.img
+sudo chown root:root /var/swap.img
+sudo nano /etc/fstab
+# Append the following line to the end of the file:
+/var/swap.img none swap sw 0 0
+
+
+sudo apt-get update
+sudo apt-get install automake -y
+sudo apt-get install libdb++-dev -y
+sudo apt-get install build-essential libtool autotools-dev libevent-dev -y
+sudo apt-get install autoconf pkg-config libssl-dev -y
+sudo apt-get install libboost-all-dev -y
+sudo apt-get install libminiupnpc-dev -y
+sudo apt-get install git -y
+sudo apt-get install software-properties-common -y
+sudo apt-get install python-software-properties -y
+sudo apt-get install g++ -y
+sudo add-apt-repository ppa:bitcoin/bitcoin
+sudo apt-get update
+sudo apt-get install libdb4.8-dev libdb4.8++-dev -y
+git clone https://github.com/energicryptocurrency/energi.git
+
+cd energi
+./autogen.sh
+./configure --without-gui
+make
+sudo make install
+# start the daemon
+energid --daemon
