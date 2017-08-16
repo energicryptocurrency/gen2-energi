@@ -22,7 +22,7 @@
 #endif
 
 //#define BOOST_TEST_MODULE Daggerhashimoto
-#define BOOST_TEST_MAIN
+//#define BOOST_TEST_MAIN
 
 #include <iostream>
 #include <fstream>

@@ -20,16 +20,6 @@ namespace egihash
 	constexpr egihash_result_t  empty_result = {{{0}}, {{0}}};
 }
 
-std::string bytesToHexString(const uint8_t *str, const uint64_t s)
-{
-	std::ostringstream ret;
-	for (size_t i = 0; i < s; ++i)
-		ret << std::hex << std::setfill('0') << std::setw(2) << std::nouppercase << (int) str[i];
-
-	return ret.str();
-}
-
-
 
 extern "C"
 {
@@ -205,7 +195,6 @@ extern "C"
 		try
 		{
 			egihash::sha3_256 hash(input_data, input_size);
-			std::cout << bytesToHexString(hash.data, 32) << std::endl;
 			::std::memcpy(output_hash->b, hash.data, hash.HASH_SIZE);
 		}
 		catch (...)
