@@ -5,18 +5,12 @@
 #pragma once
 
 #include <stdint.h>
-extern "C" 
-{
-   #include "keccak-tiny.h"
-}
+extern "C" {
 #include "secure_memzero.h"
+#include "keccak-tiny.h"
+}
 
 #ifdef __cplusplus
-namespace egihash
-{
-	bool test_function();
-}
-
 extern "C"
 {
 #endif // __cplusplus
@@ -24,28 +18,28 @@ extern "C"
 #define egihash_h256_static_init(...)			\
 	{ {__VA_ARGS__} }
 
-#define EGINS_PREFIX egihash
-#define EGIHASH_CONCAT(x, y) EGIHASH_CONCAT_(x, y)
-#define EGIHASH_CONCAT_(x, y) x ## y
-#define EGINS(name) EGINS_(_ ## name)
-#define EGINS_(name) EGIHASH_CONCAT(EGINS_PREFIX, name)
+typedef int (*egihash_callback)(unsigned int);
+typedef struct egihash_light* egihash_light_t;
+typedef struct egihash_full* egihash_full_t;
+typedef struct egihash_h256 { uint8_t b[32]; } egihash_h256_t;
+typedef struct egihash_result { egihash_h256_t value; egihash_h256_t mixhash; } egihash_result_t;
 
-typedef int (* EGINS(callback))(unsigned int);
-typedef struct EGINS(light) * EGINS(light_t);
-typedef struct EGINS(full) * EGINS(full_t);
-typedef struct EGINS(h256) { uint8_t b[32]; } EGINS(h256_t);
-typedef struct EGINS(result) { EGINS(h256_t) value; EGINS(h256_t) mixhash; } EGINS(result_t);
+egihash_light_t egihash_light_new(unsigned int block_number);
+void egihash_light_delete(egihash_light_t light);
+egihash_result_t egihash_light_compute(egihash_light_t light, egihash_h256_t header_hash, uint64_t nonce);
 
-EGINS(light_t) EGINS(light_new)(unsigned int block_number);
-EGINS(result_t) EGINS(light_compute)(EGINS(light_t) light, EGINS(h256_t) header_hash, uint64_t nonce);
-void EGINS(light_delete)(EGINS(light_t) light);
+egihash_full_t egihash_full_new(egihash_light_t light, egihash_callback callback);
+void egihash_full_delete (egihash_full_t full);
+uint64_t egihash_full_dag_size(egihash_full_t full);
+void const * egihash_full_dag(egihash_full_t full);
+egihash_result_t egihash_full_compute(egihash_full_t full, egihash_h256_t header_hash, uint64_t nonce);
 
-EGINS(full_t) EGINS(full_new)(EGINS(light_t) light, EGINS(callback) callback);
-uint64_t EGINS(full_dag_size)(EGINS(full_t) full);
-void const * EGINS(full_dag)(EGINS(full_t) full);
-EGINS(result_t) EGINS(full_compute)(EGINS(full_t) full, EGINS(h256_t) header_hash, uint64_t nonce);
-void EGINS(full_delete)(EGINS(full_t) full);
-void egihash_h256_compute(EGINS(h256_t) * output_hash, void * input_data, uint64_t input_size);
+void egihash_h256_compute(egihash_h256_t * output_hash, void * input_data, uint64_t input_size);
+
+uint32_t fnv_hash(uint32_t const x, uint32_t const y);
+bool egihash_check_difficulty(
+		egihash_h256_t const* hash,
+		egihash_h256_t const* boundary);
 
 #ifdef __cplusplus
 } // extern "C"

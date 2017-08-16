@@ -80,6 +80,7 @@ BITCOIN_CORE_H = \
   addrman.h \
   alert.h \
   amount.h \
+  egihash/internal.h \
   egihash/egihash.h \
   egihash/keccack-tiny.h \
   egihash/endian.h \
@@ -301,8 +302,8 @@ libbitcoin_wallet_a_SOURCES = \
   $(BITCOIN_CORE_H)
 
 # crypto primitives library
-crypto_libbitcoin_crypto_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_CONFIG_INCLUDES) $(PIC_FLAGS) -std=c++14 -D__STDC_WANT_LIB_EXT1__=1 -DUSE_SECURE_MEMZERO
-crypto_libbitcoin_crypto_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS) -std=c++14 -D__STDC_WANT_LIB_EXT1__=1 -DUSE_SECURE_MEMZERO
+crypto_libbitcoin_crypto_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_CONFIG_INCLUDES) $(PIC_FLAGS)
+crypto_libbitcoin_crypto_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS)
 crypto_libbitcoin_crypto_a_SOURCES = \
   crypto/common.h \
   crypto/hmac_sha256.cpp \
@@ -351,9 +352,10 @@ crypto_libbitcoin_crypto_a_SOURCES += \
 
 libegihash_a_CFLAGS = $(AM_CFLAGS)  $(PIE_FLAGS) $(PIC_FLAGS) -std=c11 -D__STDC_WANT_LIB_EXT1__=1 -DUSE_SECURE_MEMZERO
 libegihash_a_CPPFLAGS = $(AM_CPPFLAGS)
-libegihash_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS) -std=c++14 -D__STDC_WANT_LIB_EXT1__=1 -DUSE_SECURE_MEMZERO
+libegihash_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS) -std=c++11 -D__STDC_WANT_LIB_EXT1__=1 -DUSE_SECURE_MEMZERO
 libegihash_a_SOURCES = \
   egihash/egihash.cpp \
+  egihash/internal.cpp \
   egihash/keccak-tiny.c
 
 

@@ -13,7 +13,8 @@
 #include <iomanip>
 #include "egihash/endian.h"
 #include "egihash/egihash.h"
-
+#include "egihash/internal.h"
+#include "egihash/io.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -116,27 +117,21 @@ egihash_h256_t stringToBlockhash(std::string const& _s)
 	return ret;
 }
 
-//
-//
-//BOOST_AUTO_TEST_CASE(fnv_hash_check) {
-//	uint32_t x = 1235U;
-//	const uint32_t
-//			y = 9999999U,
-//			expected = (FNV_PRIME * x) ^y;
-//
-//	x = fnv_hash(x, y);
-//
-//	BOOST_REQUIRE_MESSAGE(x == expected,
-//			"\nexpected: " << expected << "\n"
-//					<< "actual: " << x << "\n");
-//
-//}
+
+
+BOOST_AUTO_TEST_CASE(fnv_hash_check) {
+	uint32_t x = 1235U;
+	const uint32_t y = 9999999U, expected = (egihash::FNV_PRIME * x) ^y;
+	x = egihash::fnv(x, y);
+
+	BOOST_REQUIRE_MESSAGE(x == expected,
+			"\nexpected: " << expected << "\n"
+					<< "actual: " << x << "\n");
+
+}
 
 BOOST_AUTO_TEST_CASE(SHA256_check)
 {
-	//auto t = egihash_light_new(0);
-	//egihash::test_function();
-
 	egihash_h256_t input;
 	egihash_h256_t out;
 	memcpy(&input, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 32);
@@ -175,66 +170,71 @@ BOOST_AUTO_TEST_CASE(test_swap_endian64) {
 }
 
 
-//BOOST_AUTO_TEST_CASE(egihash_params_init_genesis_check) {
-//	uint64_t full_size = egihash_get_datasize(0);
-//	uint64_t cache_size = egihash_get_cachesize(0);
-//	BOOST_REQUIRE_MESSAGE(full_size < ETHASH_DATASET_BYTES_INIT,
-//			"\nfull size: " << full_size << "\n"
-//					<< "should be less than or equal to: " << ETHASH_DATASET_BYTES_INIT << "\n");
-//	BOOST_REQUIRE_MESSAGE(full_size + 20 * ETHASH_MIX_BYTES >= ETHASH_DATASET_BYTES_INIT,
-//			"\nfull size + 20*MIX_BYTES: " << full_size + 20 * ETHASH_MIX_BYTES << "\n"
-//					<< "should be greater than or equal to: " << ETHASH_DATASET_BYTES_INIT << "\n");
-//	BOOST_REQUIRE_MESSAGE(cache_size < ETHASH_DATASET_BYTES_INIT / 32,
-//			"\ncache size: " << cache_size << "\n"
-//					<< "should be less than or equal to: " << ETHASH_DATASET_BYTES_INIT / 32 << "\n");
-//}
+BOOST_AUTO_TEST_CASE(egihash_params_init_genesis_check) {
+	uint64_t full_size = egihash::get_full_size(0);
+	uint64_t cache_size = egihash::get_cache_size(0);
+	BOOST_REQUIRE_MESSAGE(full_size < egihash::DATASET_BYTES_INIT,
+			"\nfull size: " << full_size << "\n"
+					<< "should be less than or equal to: " << egihash::DATASET_BYTES_INIT << "\n");
+	BOOST_REQUIRE_MESSAGE(full_size + 20 * egihash::MIX_BYTES >= egihash::DATASET_BYTES_INIT,
+			"\nfull size + 20*MIX_BYTES: " << full_size + 20 * egihash::MIX_BYTES << "\n"
+					<< "should be greater than or equal to: " << egihash::DATASET_BYTES_INIT << "\n");
+	BOOST_REQUIRE_MESSAGE(cache_size < egihash::DATASET_BYTES_INIT / 32,
+			"\ncache size: " << cache_size << "\n"
+					<< "should be less than or equal to: " << egihash::DATASET_BYTES_INIT / 32 << "\n");
+}
 
 
-//
-//BOOST_AUTO_TEST_CASE(egihash_params_init_genesis_calcifide_check) {
-//	uint64_t full_size = egihash_get_datasize(0);
-//	uint64_t cache_size = egihash_get_cachesize(0);
-//	const uint32_t expected_full_size = 1073739904;
-//	const uint32_t expected_cache_size = 16776896;
-//	BOOST_REQUIRE_MESSAGE(full_size == expected_full_size,
-//			"\nexpected: " << expected_cache_size << "\n"
-//					<< "actual: " << full_size << "\n");
-//	BOOST_REQUIRE_MESSAGE(cache_size == expected_cache_size,
-//			"\nexpected: " << expected_cache_size << "\n"
-//					<< "actual: " << cache_size << "\n");
-//}
-//
-//BOOST_AUTO_TEST_CASE(egihash_check_difficulty_check) {
-//	egihash_h256_t hash;
-//	egihash_h256_t target;
-//	memcpy(&hash, "11111111111111111111111111111111", 32);
-//	memcpy(&target, "22222222222222222222222222222222", 32);
-//	BOOST_REQUIRE_MESSAGE(
-//			egihash_check_difficulty(&hash, &target),
-//			"\nexpected \"" << std::string((char *) &hash, 32).c_str() << "\" to have the same or less difficulty than \"" << std::string((char *) &target, 32).c_str() << "\"\n");
-//	BOOST_REQUIRE_MESSAGE(
-//		egihash_check_difficulty(&hash, &hash), "");
-//			// "\nexpected \"" << hash << "\" to have the same or less difficulty than \"" << hash << "\"\n");
-//	memcpy(&target, "11111111111111111111111111111112", 32);
-//	BOOST_REQUIRE_MESSAGE(
-//		egihash_check_difficulty(&hash, &target), "");
-//			// "\nexpected \"" << hash << "\" to have the same or less difficulty than \"" << target << "\"\n");
-//	memcpy(&target, "11111111111111111111111111111110", 32);
-//	BOOST_REQUIRE_MESSAGE(
-//			!egihash_check_difficulty(&hash, &target), "");
-//			// "\nexpected \"" << hash << "\" to have more difficulty than \"" << target << "\"\n");
-//}
-//
-//BOOST_AUTO_TEST_CASE(test_egihash_io_mutable_name) {
-//	char mutable_name[DAG_MUTABLE_NAME_MAX_SIZE];
-//	// should have at least 8 bytes provided since this is what we test :)
-//	egihash_h256_t seed1 = egihash_h256_static_init(0, 10, 65, 255, 34, 55, 22, 8);
-//	egihash_io_mutable_name(1, &seed1, mutable_name);
-//	BOOST_REQUIRE_EQUAL(0, strcmp(mutable_name, "full-R1-000a41ff22371608"));
-//	egihash_h256_t seed2 = egihash_h256_static_init(0, 0, 0, 0, 0, 0, 0, 0);
-//	egihash_io_mutable_name(44, &seed2, mutable_name);
-//	BOOST_REQUIRE_EQUAL(0, strcmp(mutable_name, "full-R44-0000000000000000"));
-//}
+
+BOOST_AUTO_TEST_CASE(egihash_params_init_genesis_calcifide_check) {
+	uint64_t full_size = egihash::get_full_size(0);
+	uint64_t cache_size = egihash::get_cache_size(0);
+	const uint32_t expected_full_size = 1073739904;
+	const uint32_t expected_cache_size = 16776896;
+	BOOST_REQUIRE_MESSAGE(full_size == expected_full_size,
+			"\nexpected: " << expected_cache_size << "\n"
+					<< "actual: " << full_size << "\n");
+	BOOST_REQUIRE_MESSAGE(cache_size == expected_cache_size,
+			"\nexpected: " << expected_cache_size << "\n"
+					<< "actual: " << cache_size << "\n");
+}
+
+
+
+BOOST_AUTO_TEST_CASE(egihash_check_difficulty_check) {
+	egihash_h256_t hash;
+	egihash_h256_t target;
+	memcpy(&hash, "11111111111111111111111111111111", 32);
+	memcpy(&target, "22222222222222222222222222222222", 32);
+	BOOST_REQUIRE_MESSAGE(
+			egihash_check_difficulty(&hash, &target),
+			"\nexpected \"" << std::string((char *) &hash, 32).c_str() << "\" to have the same or less difficulty than \"" << std::string((char *) &target, 32).c_str() << "\"\n");
+	BOOST_REQUIRE_MESSAGE(
+		egihash_check_difficulty(&hash, &hash), "");
+			// "\nexpected \"" << hash << "\" to have the same or less difficulty than \"" << hash << "\"\n");
+	memcpy(&target, "11111111111111111111111111111112", 32);
+	BOOST_REQUIRE_MESSAGE(
+		egihash_check_difficulty(&hash, &target), "");
+			// "\nexpected \"" << hash << "\" to have the same or less difficulty than \"" << target << "\"\n");
+	memcpy(&target, "11111111111111111111111111111110", 32);
+	BOOST_REQUIRE_MESSAGE(
+			!egihash_check_difficulty(&hash, &target), "");
+			// "\nexpected \"" << hash << "\" to have more difficulty than \"" << target << "\"\n");
+}
+
+
+BOOST_AUTO_TEST_CASE(test_egihash_io_mutable_name) {
+	char mutable_name[DAG_MUTABLE_NAME_MAX_SIZE];
+	// should have at least 8 bytes provided since this is what we test :)
+	egihash_h256_t seed1 = egihash_h256_static_init(0, 10, 65, 255, 34, 55, 22, 8);
+	egihash_io_mutable_name(1, &seed1, mutable_name);
+	BOOST_REQUIRE_EQUAL(0, strcmp(mutable_name, "full-R1-000a41ff22371608"));
+	egihash_h256_t seed2 = egihash_h256_static_init(0, 0, 0, 0, 0, 0, 0, 0);
+	egihash_io_mutable_name(44, &seed2, mutable_name);
+	BOOST_REQUIRE_EQUAL(0, strcmp(mutable_name, "full-R44-0000000000000000"));
+}
+
+
 //
 //BOOST_AUTO_TEST_CASE(test_egihash_dir_creation) {
 //	egihash_h256_t seedhash;
@@ -594,6 +594,7 @@ BOOST_AUTO_TEST_CASE(test_swap_endian64) {
 //	fs::remove_all("./test_egihash_directory/");
 //}
 //
+
 //BOOST_AUTO_TEST_CASE(test_incomplete_dag_file) {
 //	uint64_t full_size;
 //	uint64_t cache_size;
@@ -624,37 +625,44 @@ BOOST_AUTO_TEST_CASE(test_swap_endian64) {
 //	egihash_light_delete(light);
 //	fs::remove_all("./test_egihash_directory/");
 //}
-//
+
+
 //BOOST_AUTO_TEST_CASE(test_block22_verification) {
 //	// from POC-9 testnet, epoch 0
+//
 //	egihash_light_t light = egihash_light_new(22);
 //	egihash_h256_t seedhash = stringToBlockhash("372eca2454ead349c3df0ab5d00b0b706b23e49d469387db91811cee0358fc6d");
 //	BOOST_ASSERT(light);
-//	egihash_return_value_t ret = egihash_light_compute(
+//	auto ret = egihash_light_compute(
 //		light,
 //		seedhash,
 //		0x495732e0ed7a801cU
 //	);
-//	BOOST_REQUIRE_EQUAL(blockhashToHexString(&ret.result), "00000b184f1fdd88bfd94c86c39e65db0c36144d5e43f745f722196e730cb614");
+//
+//	std::cout << blockhashToHexString(&ret.value) << std::endl;
+//	BOOST_REQUIRE_EQUAL(blockhashToHexString(&ret.value), "00000b184f1fdd88bfd94c86c39e65db0c36144d5e43f745f722196e730cb614");
 //	egihash_h256_t difficulty = egihash_h256_static_init(0x2, 0x5, 0x40);
-//	BOOST_REQUIRE(egihash_check_difficulty(&ret.result, &difficulty));
+//	BOOST_REQUIRE(egihash_check_difficulty(&ret.value, &difficulty));
 //	egihash_light_delete(light);
 //}
+//
 //
 //BOOST_AUTO_TEST_CASE(test_block30001_verification) {
 //	// from POC-9 testnet, epoch 1
 //	egihash_light_t light = egihash_light_new(30001);
 //	egihash_h256_t seedhash = stringToBlockhash("7e44356ee3441623bc72a683fd3708fdf75e971bbe294f33e539eedad4b92b34");
 //	BOOST_ASSERT(light);
-//	egihash_return_value_t ret = egihash_light_compute(
+//	auto ret = egihash_light_compute(
 //		light,
 //		seedhash,
 //		0x318df1c8adef7e5eU
 //	);
 //	egihash_h256_t difficulty = egihash_h256_static_init(0x17, 0x62, 0xff);
-//	BOOST_REQUIRE(egihash_check_difficulty(&ret.result, &difficulty));
+//	BOOST_REQUIRE(egihash_check_difficulty(&ret.value, &difficulty));
 //	egihash_light_delete(light);
 //}
+//
+//
 //
 //BOOST_AUTO_TEST_CASE(test_block60000_verification) {
 //	// from POC-9 testnet, epoch 2
@@ -667,15 +675,15 @@ BOOST_AUTO_TEST_CASE(test_swap_endian64) {
 //		0x50377003e5d830caU
 //	);
 //	egihash_h256_t difficulty = egihash_h256_static_init(0x25, 0xa6, 0x1e);
-//	BOOST_REQUIRE(egihash_check_difficulty(&ret.result, &difficulty));
+//	BOOST_REQUIRE(egihash_check_difficulty(&ret.value, &difficulty));
 //	egihash_light_delete(light);
 //}
 
 
-//// Test of Full DAG creation with the minimal egihash.h API.
-//// Commented out since travis tests would take too much time.
-//// Uncomment and run on your own machine if you want to confirm
-//// it works fine.
+// Test of Full DAG creation with the minimal egihash.h API.
+// Commented out since travis tests would take too much time.
+// Uncomment and run on your own machine if you want to confirm
+// it works fine.
 #if 0
 static int progress_cb(unsigned _progress)
 {
