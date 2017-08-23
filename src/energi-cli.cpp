@@ -78,11 +78,7 @@ static int AppInitRPC(int argc, char* argv[])
         std::string strUsage = _("Energi Core RPC client version") + " " + FormatFullVersion() + "\n";
         if (!mapArgs.count("-version")) {
             strUsage += "\n" + _("Usage:") + "\n" +
-<<<<<<< HEAD:src/energi-cli.cpp
-                  "  energi-cli [options] <command> [params]  " + _("Send command to Dash Core") + "\n" +
-=======
                   "  energi-cli [options] <command> [params]  " + _("Send command to Energi Core") + "\n" +
->>>>>>> upstream/energi_v0:src/energi-cli.cpp
                   "  energi-cli [options] help                " + _("List commands") + "\n" +
                   "  energi-cli [options] help <command>      " + _("Get help for a command") + "\n";
 

@@ -16,11 +16,7 @@ src/qt/test/test_energi-qt
 src/bench/bench_energi
 src/qt/energi-qt
 
-<<<<<<< HEAD
-# will remove later, when rebranding is complete
-=======
 # will remove this and other instances of dash later, when rebranding is complete
->>>>>>> upstream/energi_v0
 src/dash-tx
 src/test/test_dash
 src/qt/test/test_dash-qt
