@@ -22,6 +22,7 @@ typedef int (*egihash_callback)(unsigned int);
 typedef struct egihash_light* egihash_light_t;
 typedef struct egihash_full* egihash_full_t;
 typedef struct egihash_h256 { uint8_t b[32]; } egihash_h256_t;
+typedef struct egihash_h512 { uint8_t b[64]; } egihash_h512_t;
 typedef struct egihash_result { egihash_h256_t value; egihash_h256_t mixhash; } egihash_result_t;
 
 egihash_light_t egihash_light_new(unsigned int block_number);
@@ -35,6 +36,7 @@ void const * egihash_full_dag(egihash_full_t full);
 egihash_result_t egihash_full_compute(egihash_full_t full, egihash_h256_t header_hash, uint64_t nonce);
 
 void egihash_h256_compute(egihash_h256_t * output_hash, void * input_data, uint64_t input_size);
+void egihash_h512_compute(egihash_h512_t * output_hash, void * input_data, uint64_t input_size);
 
 uint32_t fnv_hash(uint32_t const x, uint32_t const y);
 bool egihash_check_difficulty(

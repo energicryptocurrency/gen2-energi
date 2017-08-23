@@ -4,7 +4,6 @@
 
 #include "egihash.h"
 #include "internal.h"
-#include "data_sizes.h"
 #include <iostream>
 
 extern "C"
@@ -176,6 +175,7 @@ extern "C"
 		}
 	}
 
+/*
 	uint64_t egihash_get_datasize(uint64_t const block_number)
 	{
 		assert(block_number / egihash::EPOCH_LENGTH < 2048);
@@ -187,6 +187,7 @@ extern "C"
 		assert(block_number / egihash::EPOCH_LENGTH < 2048);
 		return cache_sizes[block_number / egihash::EPOCH_LENGTH];
 	}
+*/
 
 
 
@@ -201,6 +202,20 @@ extern "C"
 		{
 			// zero hash data indicates error
 			::std::memset(output_hash->b, 0, 32);
+		}
+	}
+
+	void egihash_h512_compute(egihash_h512_t  * output_hash, void * input_data, uint64_t input_size)
+	{
+		try
+		{
+			egihash::sha3_512 hash(input_data, input_size);
+			::std::memcpy(output_hash->b, hash.data, hash.HASH_SIZE);
+		}
+		catch (...)
+		{
+			// zero hash data indicates error
+			::std::memset(output_hash->b, 0, 64);
 		}
 	}
 
