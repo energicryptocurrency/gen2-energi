@@ -28,9 +28,12 @@ LIBBITCOIN_UTIL=libbitcoin_util.a
 LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBBITCOINQT=qt/libbitcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
+LIBEGIHASH = libegihash.a
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
+
+
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
@@ -38,6 +41,7 @@ EXTRA_LIBRARIES += \
   crypto/libbitcoin_crypto.a \
   libbitcoin_util.a \
   libbitcoin_common.a \
+  libegihash.a \
   libbitcoin_server.a \
   libbitcoin_cli.a
 if ENABLE_WALLET
@@ -76,6 +80,14 @@ BITCOIN_CORE_H = \
   addrman.h \
   alert.h \
   amount.h \
+  egihash/internal.h \
+  egihash/egihash.h \
+  egihash/keccack-tiny.h \
+  egihash/endian.h \
+  egihash/fnv.h \
+  egihash/compiler.h \
+  egihash/data_sizes.h \
+  egihash/secure_memzero.h \
   arith_uint256.h \
   base58.h \
   bip39.h \
@@ -290,8 +302,8 @@ libbitcoin_wallet_a_SOURCES = \
   $(BITCOIN_CORE_H)
 
 # crypto primitives library
-crypto_libbitcoin_crypto_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_CONFIG_INCLUDES) $(PIC_FLAGS) -std=c++14 -D__STDC_WANT_LIB_EXT1__=1 -DUSE_SECURE_MEMZERO
-crypto_libbitcoin_crypto_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS) -std=c++14 -D__STDC_WANT_LIB_EXT1__=1 -DUSE_SECURE_MEMZERO
+crypto_libbitcoin_crypto_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_CONFIG_INCLUDES) $(PIC_FLAGS)
+crypto_libbitcoin_crypto_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS)
 crypto_libbitcoin_crypto_a_SOURCES = \
   crypto/common.h \
   crypto/hmac_sha256.cpp \
@@ -307,7 +319,8 @@ crypto_libbitcoin_crypto_a_SOURCES = \
   crypto/sha256.h \
   crypto/sha512.cpp \
   crypto/sha512.h
-
+  
+  
 # x11
 crypto_libbitcoin_crypto_a_SOURCES += \
   crypto/blake.c \
@@ -334,10 +347,17 @@ crypto_libbitcoin_crypto_a_SOURCES += \
   crypto/sph_skein.h \
   crypto/sph_types.h \
   crypto/sha512.cpp \
-  crypto/egihash.cpp \
-  crypto/egihash.h \
-  crypto/keccak-tiny.h \
-  crypto/keccak-tiny.c
+  crypto/sha512.h
+
+
+libegihash_a_CFLAGS = $(AM_CFLAGS)  $(PIE_FLAGS) $(PIC_FLAGS) -std=c11 -D__STDC_WANT_LIB_EXT1__=1 -DUSE_SECURE_MEMZERO
+libegihash_a_CPPFLAGS = $(AM_CPPFLAGS)
+libegihash_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS) -std=c++11 -D__STDC_WANT_LIB_EXT1__=1 -DUSE_SECURE_MEMZERO
+libegihash_a_SOURCES = \
+  egihash/egihash.cpp \
+  egihash/internal.cpp \
+  egihash/keccak-tiny.c
+
 
 # common: shared between energid, and energi-qt and non-server tools
 libbitcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
@@ -426,7 +446,9 @@ energid_LDADD = \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBLEVELDB) \
   $(LIBMEMENV) \
-  $(LIBSECP256K1)
+  $(LIBSECP256K1) \
+  $(LIBEGIHASH)
+
 
 if ENABLE_ZMQ
 energid_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
@@ -470,7 +492,8 @@ energi_tx_LDADD = \
   $(LIBBITCOIN_COMMON) \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CRYPTO) \
-  $(LIBSECP256K1)
+  $(LIBSECP256K1) \
+  $(LIBEGIHASH)
 
 energi_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
 #
