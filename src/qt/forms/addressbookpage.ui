@@ -137,7 +137,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../dash.qrc"/>
+  <include location="../energi.qrc"/>
  </resources>
  <connections/>
 </ui>

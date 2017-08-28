@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/dash-config.h"
+#include "config/energi-config.h"
 #endif
 
 #include "optionsdialog.h"
@@ -21,7 +21,7 @@
 #include "wallet/wallet.h" // for CWallet::GetRequiredFee()
 #endif
 
-#include "darksend.h"
+#include "privatesend-client.h"
 
 #include <boost/thread.hpp>
 
@@ -90,10 +90,10 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     }
     
     /* Theme selector */
-    ui->theme->addItem(QString("DASH-light"), QVariant("light"));
-    ui->theme->addItem(QString("DASH-blue"), QVariant("drkblue"));
-    ui->theme->addItem(QString("DASH-Crownium"), QVariant("crownium"));
-    ui->theme->addItem(QString("DASH-traditional"), QVariant("trad"));
+    ui->theme->addItem(QString("ENERGI-light"), QVariant("light"));
+    ui->theme->addItem(QString("ENERGI-blue"), QVariant("drkblue"));
+    ui->theme->addItem(QString("ENERGI-Crownium"), QVariant("crownium"));
+    ui->theme->addItem(QString("ENERGI-traditional"), QVariant("trad"));
     
     /* Language selector */
     QDir translations(":translations");
@@ -260,7 +260,7 @@ void OptionsDialog::on_resetButton_clicked()
 void OptionsDialog::on_okButton_clicked()
 {
     mapper->submit();
-    darkSendPool.nCachedNumBlocks = std::numeric_limits<int>::max();
+    privateSendClient.nCachedNumBlocks = std::numeric_limits<int>::max();
     pwalletMain->MarkDirty();
     accept();
     updateDefaultProxyNets();

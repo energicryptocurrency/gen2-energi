@@ -5,7 +5,7 @@
 #ifndef GOVERNANCE_H
 #define GOVERNANCE_H
 
-//#define ENABLE_DASH_DEBUG
+//#define ENABLE_ENERGI_DEBUG
 
 #include "bloom.h"
 #include "cachemap.h"
@@ -26,7 +26,14 @@ class CGovernanceVote;
 
 extern CGovernanceManager governance;
 
-typedef std::pair<CGovernanceObject, int64_t> object_time_pair_t;
+struct ExpirationInfo {
+    ExpirationInfo(int64_t _nExpirationTime, int _idFrom) : nExpirationTime(_nExpirationTime), idFrom(_idFrom) {}
+
+    int64_t nExpirationTime;
+    NodeId idFrom;
+};
+
+typedef std::pair<CGovernanceObject, ExpirationInfo> object_info_pair_t;
 
 static const int RATE_BUFFER_SIZE = 5;
 
@@ -179,12 +186,6 @@ public: // Types
 
     typedef CacheMap<uint256, CGovernanceObject*> object_ref_cache_t;
 
-    typedef std::map<uint256, int> count_m_t;
-
-    typedef count_m_t::iterator count_m_it;
-
-    typedef count_m_t::const_iterator count_m_cit;
-
     typedef std::map<uint256, CGovernanceVote> vote_m_t;
 
     typedef vote_m_t::iterator vote_m_it;
@@ -203,17 +204,19 @@ public: // Types
 
     typedef txout_m_t::const_iterator txout_m_cit;
 
+    typedef std::map<COutPoint, int> txout_int_m_t;
+
     typedef std::set<uint256> hash_s_t;
 
     typedef hash_s_t::iterator hash_s_it;
 
     typedef hash_s_t::const_iterator hash_s_cit;
 
-    typedef std::map<uint256, object_time_pair_t> object_time_m_t;
+    typedef std::map<uint256, object_info_pair_t> object_info_m_t;
 
-    typedef object_time_m_t::iterator object_time_m_it;
+    typedef object_info_m_t::iterator object_info_m_it;
 
-    typedef object_time_m_t::const_iterator object_time_m_cit;
+    typedef object_info_m_t::const_iterator object_info_m_cit;
 
     typedef std::map<uint256, int64_t> hash_time_m_t;
 
@@ -226,6 +229,9 @@ private:
 
     static const std::string SERIALIZATION_VERSION_STRING;
 
+    static const int MAX_TIME_FUTURE_DEVIATION;
+    static const int RELIABLE_PROPAGATION_TIME;
+
     // Keep track of current block index
     const CBlockIndex *pCurrentBlockIndex;
 
@@ -235,9 +241,16 @@ private:
     // keep track of the scanning errors
     object_m_t mapObjects;
 
-    count_m_t mapSeenGovernanceObjects;
+    // mapErasedGovernanceObjects contains key-value pairs, where
+    //   key   - governance object's hash
+    //   value - expiration time for deleted objects
+    hash_time_m_t mapErasedGovernanceObjects;
 
-    object_time_m_t mapMasternodeOrphanObjects;
+    object_info_m_t mapMasternodeOrphanObjects;
+    txout_int_m_t mapMasternodeOrphanCounter;
+
+    object_m_t mapPostponedObjects;
+    hash_s_t setAdditionalRelayObjects;
 
     hash_time_m_t mapWatchdogObjects;
 
@@ -259,6 +272,26 @@ private:
 
     bool fRateChecksEnabled;
 
+    class CRateChecksGuard
+    {
+        CGovernanceManager& govman;
+        bool fRateChecksPrev;
+
+    public:
+        CRateChecksGuard(bool value, CGovernanceManager& gm) : govman(gm)
+        {
+            ENTER_CRITICAL_SECTION(govman.cs)
+            fRateChecksPrev = govman.fRateChecksEnabled;
+            govman.fRateChecksEnabled = value;
+        }
+
+        ~CRateChecksGuard()
+        {
+            govman.fRateChecksEnabled = fRateChecksPrev;
+            LEAVE_CRITICAL_SECTION(govman.cs)
+        }
+    };
+
 public:
     // critical section to protect the inner data structures
     mutable CCriticalSection cs;
@@ -266,13 +299,6 @@ public:
     CGovernanceManager();
 
     virtual ~CGovernanceManager() {}
-
-    int CountProposalInventoryItems()
-    {
-        // TODO What is this for ?
-        return mapSeenGovernanceObjects.size();
-        //return mapSeenGovernanceObjects.size() + mapSeenVotes.size();
-    }
 
     /**
      * This is called by AlreadyHave in main.cpp as part of the inventory
@@ -294,7 +320,7 @@ public:
     std::vector<CGovernanceObject*> GetAllNewerThan(int64_t nMoreThanTime);
 
     bool IsBudgetPaymentBlock(int nBlockHeight);
-    bool AddGovernanceObject(CGovernanceObject& govobj, bool& fAddToSeen, CNode* pfrom = NULL);
+    void AddGovernanceObject(CGovernanceObject& govobj, CNode* pfrom = NULL);
 
     std::string GetRequiredPaymentsString(int nBlockHeight);
 
@@ -308,7 +334,7 @@ public:
 
         LogPrint("gobject", "Governance object manager was cleared\n");
         mapObjects.clear();
-        mapSeenGovernanceObjects.clear();
+        mapErasedGovernanceObjects.clear();
         mapWatchdogObjects.clear();
         nHashWatchdogCurrent = uint256();
         nTimeWatchdogCurrent = 0;
@@ -333,7 +359,8 @@ public:
             strVersion = SERIALIZATION_VERSION_STRING;
             READWRITE(strVersion);
         }
-        READWRITE(mapSeenGovernanceObjects);
+
+        READWRITE(mapErasedGovernanceObjects);
         READWRITE(mapInvalidVotes);
         READWRITE(mapOrphanVotes);
         READWRITE(mapObjects);
@@ -364,6 +391,12 @@ public:
 
     bool SerializeVoteForHash(uint256 nHash, CDataStream& ss);
 
+    void AddPostponedObject(const CGovernanceObject& govobj)
+    {
+        LOCK(cs);
+        mapPostponedObjects.insert(std::make_pair(govobj.GetHash(), govobj));
+    }
+
     void AddSeenGovernanceObject(uint256 nHash, int status);
 
     void AddSeenVote(uint256 nHash, int status);
@@ -383,6 +416,8 @@ public:
     void CheckMasternodeOrphanVotes();
 
     void CheckMasternodeOrphanObjects();
+
+    void CheckPostponedObjects();
 
     bool AreRateChecksEnabled() const {
         LOCK(cs);

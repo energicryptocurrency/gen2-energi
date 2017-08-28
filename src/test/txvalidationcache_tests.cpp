@@ -10,7 +10,7 @@
 #include "txmempool.h"
 #include "random.h"
 #include "script/standard.h"
-#include "test/test_dash.h"
+#include "test/test_energi.h"
 #include "utiltime.h"
 
 #include <boost/test/unit_test.hpp>
@@ -26,6 +26,7 @@ ToMemPool(CMutableTransaction& tx)
     return AcceptToMemoryPool(mempool, state, tx, false, NULL, true, false);
 }
 
+#if 0
 BOOST_FIXTURE_TEST_CASE(tx_mempool_block_doublespend, TestChain100Setup)
 {
     // Make sure skipping validation of transctions that were
@@ -83,4 +84,5 @@ BOOST_FIXTURE_TEST_CASE(tx_mempool_block_doublespend, TestChain100Setup)
     BOOST_CHECK_EQUAL(mempool.size(), 0);
 }
 
+#endif
 BOOST_AUTO_TEST_SUITE_END()

@@ -11,6 +11,7 @@
 #include "pow.h"
 #include "tinyformat.h"
 #include "uint256.h"
+#include "crypto/egihash.h"
 
 #include <vector>
 
@@ -336,7 +337,7 @@ public:
         block.nTime           = nTime;
         block.nBits           = nBits;
         block.nNonce          = nNonce;
-        return block.GetHash();
+        return block.GetHash( (uint32_t)nHeight );
     }
 
 
@@ -406,6 +407,8 @@ public:
 
     /** Find the last common block between this chain and a block index entry. */
     const CBlockIndex *FindFork(const CBlockIndex *pindex) const;
+
+    // void loadDAG(std::string dataDir);
 };
 
 #endif // BITCOIN_CHAIN_H

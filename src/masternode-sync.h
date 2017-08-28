@@ -50,9 +50,6 @@ private:
     // ... or failed
     int64_t nTimeLastFailure;
 
-    // How many times we failed
-    int nCountFailures;
-
     // Keep track of current block index
     const CBlockIndex *pCurrentBlockIndex;
 
@@ -77,6 +74,7 @@ public:
 
     int GetAssetID() { return nRequestedMasternodeAssets; }
     int GetAttempt() { return nRequestedMasternodeAttempt; }
+    int64_t GetAssetStartTime() { return nTimeAssetSyncStarted; }
     std::string GetAssetName();
     std::string GetSyncStatus();
 

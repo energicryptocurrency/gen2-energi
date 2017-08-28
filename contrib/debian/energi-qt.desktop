@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Energi
+Comment=Energi P2P Cryptocurrency
+Comment[fr]=Energi, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Energi, eşten eşe kriptografik sanal para birimi
+Exec=energi-qt %u
+Terminal=false
+Type=Application
+Icon=energi128
+MimeType=x-scheme-handler/energi;
+Categories=Office;Finance;

@@ -10,7 +10,7 @@
 #include "arith_uint256.h"
 #include "version.h"
 #include "random.h"
-#include "test/test_dash.h"
+#include "test/test_energi.h"
 
 #include <vector>
 

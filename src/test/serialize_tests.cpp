@@ -5,7 +5,7 @@
 #include "serialize.h"
 #include "streams.h"
 #include "hash.h"
-#include "test/test_dash.h"
+#include "test/test_energi.h"
 
 #include <stdint.h>
 
@@ -274,6 +274,55 @@ BOOST_AUTO_TEST_CASE(insert_delete)
     CSerializeData d;
     ss.GetAndClear(d);
     BOOST_CHECK_EQUAL(ss.size(), 0);
+}
+
+// Change struct size and check if it can be deserialized
+// from old version archive and vice versa
+struct old_version
+{
+    int field1;
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(field1);
+    }
+};\
+struct new_version
+{
+    int field1;
+    int field2;
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(field1);
+        if(ser_action.ForRead() && (s.size() == 0))
+        {
+            field2 = 0;
+            return;
+        }
+        READWRITE(field2);
+    }
+};
+
+BOOST_AUTO_TEST_CASE(check_backward_compatibility)
+{
+    CDataStream ss(SER_DISK, 0);
+    old_version old_src({5});
+    ss << old_src;
+    new_version new_dest({6, 7});
+    BOOST_REQUIRE_NO_THROW(ss >> new_dest);
+    BOOST_REQUIRE(old_src.field1 == new_dest.field1);
+    BOOST_REQUIRE(ss.size() == 0);
+
+    new_version new_src({6, 7});
+    ss << new_src;
+    old_version old_dest({5});
+    BOOST_REQUIRE_NO_THROW(ss >> old_dest);
+    BOOST_REQUIRE(new_src.field1 == old_dest.field1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
