@@ -319,6 +319,7 @@ int CommandLineRPC(int argc, char *argv[])
 
 int main(int argc, char* argv[])
 {
+    LoadDAG(0);
     SetupEnvironment();
     if (!SetupNetworking()) {
         fprintf(stderr, "Error: Initializing networking failed\n");
