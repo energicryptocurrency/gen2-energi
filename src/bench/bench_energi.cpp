@@ -11,6 +11,7 @@
 int
 main(int argc, char** argv)
 {
+    LoadDAG(0);
     ECC_Start();
     SetupEnvironment();
     fPrintToDebugLog = false; // don't want to write to debug.log file

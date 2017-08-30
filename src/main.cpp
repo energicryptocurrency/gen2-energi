@@ -6912,9 +6912,6 @@ bool SendMessages(CNode* pto)
     return true;
 }
 
-/**
-*TODO
-*/
 uint32_t GetBlockHeight(const CBlockHeader* header) {
     auto const prevBlock = mapBlockIndex.find(header->hashPrevBlock);
     if (prevBlock == mapBlockIndex.end())
@@ -6922,12 +6919,13 @@ uint32_t GetBlockHeight(const CBlockHeader* header) {
     return prevBlock->second->nHeight + 1;
 }
 
-/**
-*TODO
-*/
 void LoadDAG(std::string dataDir) {
+    LoadDAG(dataDir, GetHeight());
+}
+
+void LoadDAG(std::string dataDir, int blockIndex) {
     auto filename = dataDir + std::string("epoch") 
-                            + std::to_string(GetHeight() / egihash::constants::EPOCH_LENGTH) + ".dag";
+                            + std::to_string(blockIndex / egihash::constants::EPOCH_LENGTH) + ".dag";
 
     try
     {
@@ -6938,7 +6936,7 @@ void LoadDAG(std::string dataDir) {
         // unable to load the dag, must be generated
         try
         {
-            egihash::dag_t newDAG(GetHeight());
+            egihash::dag_t newDAG(blockIndex);
             newDAG.save(filename);
         }
         catch (egihash::hash_exception const & e)

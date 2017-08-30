@@ -660,6 +660,7 @@ static int CommandLineRawTx(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+    LoadDAG(0);
     SetupEnvironment();
 
     try {
