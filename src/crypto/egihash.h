@@ -109,6 +109,7 @@ namespace egihash
 	/** \brief node union is used instead of the native integer to allow both bytes level access and as a 4 byte hash word
 	*
 	*/
+	#pragma pack(push, 1)
 	union node
 	{
 		uint32_t hword;
@@ -125,6 +126,8 @@ namespace egihash
 		node(uint32_t hword_):hword(hword_)
 		{}
 	};
+	#pragma pack(pop)
+	static_assert(sizeof(node) == sizeof(uint32_t), "Invalid hash node size");
 
 
 	/** \brief hash_exception indicates an error or cancellation when performing a task within egihash.
@@ -157,8 +160,7 @@ namespace egihash
 	*	The epoch0_seedhash should be set to a randomized set of 32 bytes for a given crypto currency.
 	*	This represents a keccak-256 hash that will be used as input for building the DAG/cache.
 	*/
-	// TODO: randomized seedhash not zero seedhash
-	static constexpr char epoch0_seedhash[] = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+	static constexpr char epoch0_seedhash[] = "\xa8\x49\x4b\xb2\x89\x5b\xd7\xed\x18\xbb\x39\xb7\xb2\x8a\xf5\x1d\xec\x51\xf7\xca\xd3\x30\xc1\x68\xf1\xbd\x1c\x90\xe7\x61\x4c\x32";
 	static constexpr uint8_t size_epoch0_seedhash = sizeof(epoch0_seedhash) - 1;
 	static_assert(size_epoch0_seedhash == 32, "Invalid seedhash");
 
