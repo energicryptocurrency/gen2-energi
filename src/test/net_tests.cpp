@@ -75,8 +75,8 @@ BOOST_AUTO_TEST_CASE(caddrdb_read)
     addrmanUncorrupted.MakeDeterministic();
 
     CService addr1 = CService("250.7.1.1", 8333);
-    CService addr2 = CService("250.7.2.2", 9999);
-    CService addr3 = CService("250.7.3.3", 9999);
+    CService addr2 = CService("250.7.2.2", 9797);
+    CService addr3 = CService("250.7.3.3", 9797);
 
     // Add three addresses to new table.
     addrmanUncorrupted.Add(CAddress(addr1, NODE_NONE), CService("252.5.1.1", 8333));
