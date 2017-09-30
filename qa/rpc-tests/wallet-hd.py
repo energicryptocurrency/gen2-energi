@@ -31,7 +31,7 @@ class WalletHDTest(BitcoinTestFramework):
             start_node(1, self.options.tmpdir, ['-usehd=0'])
             raise AssertionError("Must not allow to turn off HD on an already existing HD wallet")
         except Exception as e:
-            assert("dashd exited with status 1 during initialization" in str(e))
+            assert("energid exited with status 1 during initialization" in str(e))
         # assert_start_raises_init_error(1, self.options.tmpdir, ['-usehd=0'], 'already existing HD wallet')
         # self.nodes[1] = start_node(1, self.options.tmpdir, self.node_args[1])
         self.nodes[1] = start_node(1, self.options.tmpdir, ['-usehd=1', '-keypool=0'])

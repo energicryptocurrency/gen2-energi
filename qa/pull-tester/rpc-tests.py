@@ -150,7 +150,7 @@ testScriptsExt = [
     'p2p-acceptblock.py', # NOTE: needs dash_hash to pass
     'mempool_packages.py',
     'maxuploadtarget.py',
-    # 'replace-by-fee.py', # RBF is disabled in Dash Core
+    # 'replace-by-fee.py', # RBF is disabled in energi Core
 ]
 
 def runtests():

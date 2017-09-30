@@ -247,7 +247,7 @@ def FromHex(obj, hex_string):
 def ToHex(obj):
     return hexlify(obj.serialize()).decode('ascii')
 
-# Objects that map to dashd objects, which can be serialized/deserialized
+# Objects that map to energid objects, which can be serialized/deserialized
 
 class CAddress(object):
     def __init__(self):
@@ -972,7 +972,7 @@ class msg_headers(object):
         self.headers = []
 
     def deserialize(self, f):
-        # comment in dashd indicates these should be deserialized as blocks
+        # comment in energid indicates these should be deserialized as blocks
         blocks = deser_vector(f, CBlock)
         for x in blocks:
             self.headers.append(CBlockHeader(x))
@@ -1185,7 +1185,7 @@ class NodeConn(asyncore.dispatcher):
         vt.addrFrom.ip = "0.0.0.0"
         vt.addrFrom.port = 0
         self.send_message(vt, True)
-        print 'MiniNode: Connecting to Dash Node IP # ' + dstaddr + ':' \
+        print 'MiniNode: Connecting to Energi Node IP # ' + dstaddr + ':' \
             + str(dstport)
 
         try:
