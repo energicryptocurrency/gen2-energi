@@ -218,7 +218,8 @@ void FillBlockPayments(CMutableTransaction& txNew, int nBlockHeight, CAmount blo
             return;
     }
 
-    // FILL BLOCK PAYEE WITH MASTERNODE PAYMENT OTHERWISE
+    // FILL BLOCK PAYEE WITH FOUNDER'S REWARD AND MASTERNODE PAYMENT OTHERWISE
+    mnpayments.FillBlockFoundersReward(txNew, nBlockHeight, blockReward, txoutMasternodeRet);
     mnpayments.FillBlockPayee(txNew, nBlockHeight, blockReward, txoutMasternodeRet);
     LogPrint("mnpayments", "FillBlockPayments -- nBlockHeight %d blockReward %lld txoutMasternodeRet %s txNew %s",
                             nBlockHeight, blockReward, txoutMasternodeRet.ToString(), txNew.ToString());
@@ -253,6 +254,40 @@ bool CMasternodePayments::CanVote(COutPoint outMasternode, int nBlockHeight)
     //record this masternode voted
     mapMasternodesLastVote[outMasternode] = nBlockHeight;
     return true;
+}
+
+/**
+*   FillBlockFoundersReward
+*
+*   Add the founder's reward transaction to the block
+*/
+void CMasternodePayments::FillBlockFoundersReward(CMutableTransaction& txNew, int /*nBlockHeight*/, CAmount /*blockReward*/, CTxOut& txoutFounderRet)
+{
+    auto const & consensus = Params().GetConsensus();
+
+    // make sure it's not filled yet
+    txoutFounderRet = CTxOut();
+
+    CBitcoinAddress foundersAddress(consensus.foundersAddress);
+    CKeyID foundersKeyID;
+    if (!foundersAddress.GetKeyID(foundersKeyID))
+    {
+        error("Unable to get key ID for Founder's address");
+    }
+    CScript payee = GetScriptForDestination(foundersKeyID);
+
+    CAmount founderPayment = consensus.nBlockSubsidyFounders;
+
+    // split reward between founder, masternodes & miners
+    txNew.vout[0].nValue -= founderPayment;
+    txoutFounderRet = CTxOut(founderPayment, payee);
+    txNew.vout.push_back(txoutFounderRet);
+
+    CTxDestination address1;
+    ExtractDestination(payee, address1);
+    CBitcoinAddress address2(address1);
+
+    LogPrintf("CMasternodePayments::FillBlockFoundersReward -- Founder payment %lld to %s\n", founderPayment, address2.ToString());
 }
 
 /**

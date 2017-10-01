@@ -74,22 +74,21 @@ class CMainParams : public CChainParams {
 public:
     CMainParams() {
         strNetworkID = "main";
-        // 30 days *24 hours *60 minutes * 25 Energi/block
-        // 1080000 at a rate of 25 energi per block and 1 block per minute
-        consensus.EnergiPerBlock = 25;
-        // total 100 parts
-        // 10% to creator
-        consensus.FoundersEnergiPerBlock = 3;
+
+        // Energi distribution parameters
+        // 23.15 EnergiPerBlock should result in 1 million coins per month at a rate of 1 block per minute
+        consensus.nBlockSubsidy = 2314814814;
+        // 10% founders reward
+        consensus.nBlockSubsidyFounders = 231481481;
+        consensus.foundersAddress = "TODO: IMPLEMENT ME";
         // 20% miners
-        consensus.MinersEnergiPerBlock = 5;
+        consensus.nBlockSubsidyMiners = 462962963;
         // 30% masternodes
         // each masternode is paid serially.. more the master nodes more is the wait for the payment
         // masternode payment gap is masternodes minutes
-        consensus.MasterNodesEnergiPerBlock = 7;
+        consensus.nBlockSubsidyMasternodes = 694444444;
         // 40% treasury
-        consensus.TreasuryEnergiPerBlock = 10;
-        //
-        consensus.MinerPlusMasterNode = consensus.MasterNodesEnergiPerBlock + consensus.MinersEnergiPerBlock;
+        consensus.nBlockSubsidyTreasury = 925925926;
 
         consensus.nSubsidyHalvingInterval = 210240; /* Older value */ // Note: actual number of blocks per calendar year with DGW v3 is ~200700 (for example 449750 - 249050)
         consensus.nSubsidyHalvingInterval = 41540; /*  */
@@ -171,10 +170,7 @@ public:
         consensus.BIP34Height = 0;
         consensus.BIP34Hash = consensus.hashGenesisBlock;
 
-        vSeeds.push_back(CDNSSeedData("dash.org", "dnsseed.dash.org"));
-        vSeeds.push_back(CDNSSeedData("dashdot.io", "dnsseed.dashdot.io"));
-        vSeeds.push_back(CDNSSeedData("masternode.io", "dnsseed.masternode.io"));
-        vSeeds.push_back(CDNSSeedData("dashpay.io", "dnsseed.dashpay.io"));
+        vSeeds.push_back(CDNSSeedData("energi.world", "seed.energi.world"));
 
         // Energi addresses start with 'E'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,33);
@@ -241,22 +237,21 @@ class CTestNetParams : public CChainParams {
 public:
     CTestNetParams() {
         strNetworkID = "test";
-        // 30 days *24 hours *60 minutes * 25 Energi/block
-        // 1080000 at a rate of 25 energi per block and 1 block per minute
-        consensus.EnergiPerBlock = 25;
-        // total 100 parts
-        // 10% to creator
-        consensus.FoundersEnergiPerBlock = 3;
+
+        // Energi distribution parameters
+        // 23.15 EnergiPerBlock should result in 1 million coins per month at a rate of 1 block per minute
+        consensus.nBlockSubsidy = 2314814814;
+        // 10% founders reward
+        consensus.nBlockSubsidyFounders = 231481481;
+        consensus.foundersAddress = "tFLyidSoz9teKks22hscftwhVHqdewvAzY";
         // 20% miners
-        consensus.MinersEnergiPerBlock = 5;
+        consensus.nBlockSubsidyMiners = 462962963;
         // 30% masternodes
         // each masternode is paid serially.. more the master nodes more is the wait for the payment
         // masternode payment gap is masternodes minutes
-        consensus.MasterNodesEnergiPerBlock = 7;
+        consensus.nBlockSubsidyMasternodes = 694444444;
         // 40% treasury
-        consensus.TreasuryEnergiPerBlock = 10;
-        //
-        consensus.MinerPlusMasterNode = consensus.MasterNodesEnergiPerBlock + consensus.MinersEnergiPerBlock;
+        consensus.nBlockSubsidyTreasury = 925925926;
 
         consensus.nSubsidyHalvingInterval = 210240; /* Older value */ // Note: actual number of blocks per calendar year with DGW v3 is ~200700 (for example 449750 - 249050)
         consensus.nSubsidyHalvingInterval = 41540; /*  */
@@ -316,8 +311,7 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("dashdot.io",  "testnet-seed.dashdot.io"));
-        vSeeds.push_back(CDNSSeedData("masternode.io", "test.dnsseed.masternode.io"));
+        vSeeds.push_back(CDNSSeedData("energi.world",  "seed.energi.world"));
 
         // Testnet Energi addresses start with 't'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,127);
@@ -365,6 +359,22 @@ class CRegTestParams : public CChainParams {
 public:
     CRegTestParams() {
         strNetworkID = "regtest";
+
+        // Energi distribution parameters
+        // 23.15 EnergiPerBlock should result in 1 million coins per month at a rate of 1 block per minute
+        consensus.nBlockSubsidy = 2314814814;
+        // 10% founders reward
+        consensus.nBlockSubsidyFounders = 231481481;
+        consensus.foundersAddress = "tFLyidSoz9teKks22hscftwhVHqdewvAzY"; // TODO: make different than testnet address
+        // 20% miners
+        consensus.nBlockSubsidyMiners = 462962963;
+        // 30% masternodes
+        // each masternode is paid serially.. more the master nodes more is the wait for the payment
+        // masternode payment gap is masternodes minutes
+        consensus.nBlockSubsidyMasternodes = 694444444;
+        // 40% treasury
+        consensus.nBlockSubsidyTreasury = 925925926;
+
         consensus.nSubsidyHalvingInterval = 150;
         consensus.nMasternodePaymentsStartBlock = 240;
         consensus.nMasternodePaymentsIncreaseBlock = 350;

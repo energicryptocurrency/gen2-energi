@@ -1785,13 +1785,13 @@ NOTE:   unlike bitcoin we are using PREVIOUS block height here,
         might be a good idea to change this to use prev bits
         but current height to avoid confusion.
 */
-CAmount GetBlockSubsidy(int nPrevBits, int nPrevHeight, const Consensus::Params& consensusParams, bool fSuperblockPartOnly)
+CAmount GetBlockSubsidy(int /*nPrevBits*/, int /*nPrevHeight*/, const Consensus::Params& consensusParams, bool /*fSuperblockPartOnly*/)
 {
-    // No decline of emission. Set to 1 million per month till PoS
+    // block subsidy is a fixed value for all time in Energi
+    return consensusParams.nBlockSubsidy;
 
-    CAmount blockSubsidy = consensusParams.MinerPlusMasterNode;
-    return blockSubsidy;
-
+    // RL: previous block subsidy logic from Dash left for reference
+    #if 0
     double dDiff;
     CAmount nSubsidyBase;
 
@@ -1835,6 +1835,7 @@ CAmount GetBlockSubsidy(int nPrevBits, int nPrevHeight, const Consensus::Params&
     CAmount nSuperblockPart = (nPrevHeight > consensusParams.nBudgetPaymentsStartBlock) ? nSubsidy/10 : 0;
 
     return fSuperblockPartOnly ? nSuperblockPart : nSubsidy - nSuperblockPart;
+    #endif // 0
 }
 
 CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
@@ -1861,7 +1862,7 @@ CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
     if(nHeight > nMNPIBlock+(nMNPIPeriod* 7)) ret += blockValue / 40; // 278960 - 47.5% - 2015-06-01
     if(nHeight > nMNPIBlock+(nMNPIPeriod* 9)) ret += blockValue / 40; // 313520 - 50.0% - 2015-08-03
     */
-    
+
     CAmount ret = blockValue * 0.6; // 60% of value goes to master node after coinbase deduction
                                     // for founders and budget/treasury
 
@@ -3173,7 +3174,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     auto const height = pindexNew->nHeight;
     auto const epoch = height / constants::EPOCH_LENGTH;
 
-    // if there have been EPOCH_LENGTH number of blocks since the last DAG was generated, 
+    // if there have been EPOCH_LENGTH number of blocks since the last DAG was generated,
     // generate a new one
     if (epoch > ActiveDAG()->epoch()) {
         // TODO: should make a separate function for DAG generation

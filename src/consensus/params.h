@@ -6,6 +6,7 @@
 #ifndef BITCOIN_CONSENSUS_PARAMS_H
 #define BITCOIN_CONSENSUS_PARAMS_H
 
+#include "amount.h"
 #include "uint256.h"
 #include <map>
 #include <string>
@@ -77,12 +78,12 @@ struct Params {
     /**
     * Energi specific parameters
     */
-    int EnergiPerBlock;
-    int FoundersEnergiPerBlock;
-    int MinersEnergiPerBlock;
-    int MasterNodesEnergiPerBlock;
-    int TreasuryEnergiPerBlock;
-    int MinerPlusMasterNode;
+    CAmount nBlockSubsidy;
+    CAmount nBlockSubsidyFounders;
+    CAmount nBlockSubsidyMiners;
+    CAmount nBlockSubsidyMasternodes;
+    CAmount nBlockSubsidyTreasury;
+    std::string foundersAddress;
 };
 } // namespace Consensus
 
