@@ -86,7 +86,7 @@ string ScriptToAsmStr(const CScript& script, const bool fAttemptSighashDecode)
             str += "[error]";
             return str;
         }
-        if (0 <= opcode && opcode <= OP_PUSHDATA4) {
+        if (opcode <= OP_PUSHDATA4) {
             if (vch.size() <= static_cast<vector<unsigned char>::size_type>(4)) {
                 str += strprintf("%d", CScriptNum(vch, false).getint());
             } else {
