@@ -52,6 +52,8 @@ static const int SEEN_OBJECT_ERROR_IMMATURE = 2;
 static const int SEEN_OBJECT_EXECUTED = 3; //used for triggers
 static const int SEEN_OBJECT_UNKNOWN = 4; // the default
 
+static const int MIN_FRACTION_ABS_VOTES_REQ_FOR_FULL_SIGNAL = 7;
+
 typedef std::pair<CGovernanceVote, int64_t> vote_time_pair_t;
 
 inline bool operator<(const vote_time_pair_t& p1, const vote_time_pair_t& p2)
