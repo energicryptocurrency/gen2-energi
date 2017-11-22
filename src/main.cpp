@@ -1790,11 +1790,15 @@ NOTE:   unlike bitcoin we are using PREVIOUS block height here,
         might be a good idea to change this to use prev bits
         but current height to avoid confusion.
 */
-CAmount GetBlockSubsidy(int /*nPrevBits*/, int /*nPrevHeight*/, const Consensus::Params& consensusParams, bool /*fSuperblockPartOnly*/)
+CAmount GetBlockSubsidy(int /*nPrevBits*/, int nPrevHeight, const Consensus::Params& consensusParams, bool fSuperblockPartOnly)
 {
     // block subsidy is a fixed value for all time in Energi
-    return consensusParams.nBlockSubsidy;
+    // return consensusParams.nBlockSubsidy;
 
+    CAmount nSubsidy = consensusParams.nBlockSubsidy;
+    CAmount nSuperblockPart = (nPrevHeight > consensusParams.nBudgetPaymentsStartBlock) ? consensusParams.nBlockSubsidyTreasury : 0;
+    return fSuperblockPartOnly ? nSuperblockPart : nSubsidy - nSuperblockPart;
+    
     // RL: previous block subsidy logic from Dash left for reference
     #if 0
     double dDiff;

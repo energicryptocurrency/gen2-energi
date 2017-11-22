@@ -933,15 +933,24 @@ UniValue getgovernanceinfo(const UniValue& params, bool fHelp)
     int nSuperblockCycle = Params().GetConsensus().nSuperblockCycle;
 
     // Get first superblock
-    int nFirstSuperblockOffset = (nSuperblockCycle - nSuperblockStartBlock % nSuperblockCycle) % nSuperblockCycle;
-    int nFirstSuperblock = nSuperblockStartBlock + nFirstSuperblockOffset;
+    //int nFirstSuperblockOffset = (nSuperblockCycle - nSuperblockStartBlock % nSuperblockCycle) % nSuperblockCycle;
+    //int nFirstSuperblock = nSuperblockStartBlock + nFirstSuperblockOffset;
+    int nFirstSuperblock = Params().GetConsensus().nSuperblockFirstBlock;
 
     if(nBlockHeight < nFirstSuperblock){
         nLastSuperblock = 0;
         nNextSuperblock = nFirstSuperblock;
+    } else if (nBlockHeight < nSuperblockCycle){
+        nLastSuperblock = nFirstSuperblock;
+        nNextSuperblock = nSuperblockCycle;
     } else {
-        nLastSuperblock = nBlockHeight - nBlockHeight % nSuperblockCycle;
-        nNextSuperblock = nLastSuperblock + nSuperblockCycle;
+	    if (nBlockHeight < nSuperblockCycle){
+              nLastSuperblock = nFirstSuperblock;
+              nNextSuperblock = nSuperblockCycle;
+	    } else {
+              nLastSuperblock = nBlockHeight - nBlockHeight % nSuperblockCycle;
+              nNextSuperblock = nLastSuperblock + nSuperblockCycle;
+	    }
     }
 
     UniValue obj(UniValue::VOBJ);

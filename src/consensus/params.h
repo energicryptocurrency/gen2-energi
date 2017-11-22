@@ -84,6 +84,7 @@ struct Params {
     CAmount nBlockSubsidyMasternodes;
     CAmount nBlockSubsidyTreasury;
     std::string foundersAddress;
+    int nSuperblockFirstBlock;
 };
 } // namespace Consensus
 
