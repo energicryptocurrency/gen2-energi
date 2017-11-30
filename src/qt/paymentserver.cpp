@@ -11,7 +11,7 @@
 
 #include "base58.h"
 #include "chainparams.h"
-#include "main.h" // For minRelayTxFee
+#include "validation.h" // For minRelayTxFee
 #include "ui_interface.h"
 #include "util.h"
 #include "wallet/wallet.h"
@@ -48,25 +48,30 @@
 #endif
 
 const int BITCOIN_IPC_CONNECT_TIMEOUT = 1000; // milliseconds
-const QString BITCOIN_IPC_PREFIX("dash:");
+const QString BITCOIN_IPC_PREFIX("energi:");
 // BIP70 payment protocol messages
 const char* BIP70_MESSAGE_PAYMENTACK = "PaymentACK";
 const char* BIP70_MESSAGE_PAYMENTREQUEST = "PaymentRequest";
 // BIP71 payment protocol media types
-const char* BIP71_MIMETYPE_PAYMENT = "application/dash-payment";
-const char* BIP71_MIMETYPE_PAYMENTACK = "application/dash-paymentack";
-const char* BIP71_MIMETYPE_PAYMENTREQUEST = "application/dash-paymentrequest";
+const char* BIP71_MIMETYPE_PAYMENT = "application/energi-payment";
+const char* BIP71_MIMETYPE_PAYMENTACK = "application/energi-paymentack";
+const char* BIP71_MIMETYPE_PAYMENTREQUEST = "application/energi-paymentrequest";
 // BIP70 max payment request size in bytes (DoS protection)
 const qint64 BIP70_MAX_PAYMENTREQUEST_SIZE = 50000;
 
-X509_STORE* PaymentServer::certStore = NULL;
-void PaymentServer::freeCertStore()
+struct X509StoreDeleter {
+      void operator()(X509_STORE* b) {
+          X509_STORE_free(b);
+      }
+};
+
+struct X509Deleter {
+      void operator()(X509* b) { X509_free(b); }
+};
+
+namespace // Anon namespace
 {
-    if (PaymentServer::certStore != NULL)
-    {
-        X509_STORE_free(PaymentServer::certStore);
-        PaymentServer::certStore = NULL;
-    }
+    std::unique_ptr<X509_STORE, X509StoreDeleter> certStore;
 }
 
 //
@@ -76,7 +81,7 @@ void PaymentServer::freeCertStore()
 //
 static QString ipcServerName()
 {
-    QString name("DashQt");
+    QString name("EnergiQt");
 
     // Append a simple hash of the datadir
     // Note that GetDataDir(true) returns a different path
@@ -108,20 +113,15 @@ static void ReportInvalidCertificate(const QSslCertificate& cert)
 //
 void PaymentServer::LoadRootCAs(X509_STORE* _store)
 {
-    if (PaymentServer::certStore == NULL)
-        atexit(PaymentServer::freeCertStore);
-    else
-        freeCertStore();
-
     // Unit tests mostly use this, to pass in fake root CAs:
     if (_store)
     {
-        PaymentServer::certStore = _store;
+        certStore.reset(_store);
         return;
     }
 
     // Normal execution, use either -rootcertificates or system certs:
-    PaymentServer::certStore = X509_STORE_new();
+    certStore.reset(X509_STORE_new());
 
     // Note: use "-system-" default here so that users can pass -rootcertificates=""
     // and get 'I don't like X.509 certificates, don't trust anybody' behavior:
@@ -168,11 +168,11 @@ void PaymentServer::LoadRootCAs(X509_STORE* _store)
         QByteArray certData = cert.toDer();
         const unsigned char *data = (const unsigned char *)certData.data();
 
-        X509* x509 = d2i_X509(0, &data, certData.size());
-        if (x509 && X509_STORE_add_cert(PaymentServer::certStore, x509))
+        std::unique_ptr<X509, X509Deleter> x509(d2i_X509(0, &data, certData.size()));
+        if (x509 && X509_STORE_add_cert(certStore.get(), x509.get()))
         {
-            // Note: X509_STORE_free will free the X509* objects when
-            // the PaymentServer is destroyed
+            // Note: X509_STORE increases the reference count to the X509 object,
+            // we still have to release our reference to it.
             ++nRootCerts;
         }
         else
@@ -210,11 +210,11 @@ void PaymentServer::ipcParseCommandLine(int argc, char* argv[])
         if (arg.startsWith("-"))
             continue;
 
-        // If the dash: URI contains a payment request, we are not able to detect the
+        // If the energi: URI contains a payment request, we are not able to detect the
         // network as that would require fetching and parsing the payment request.
         // That means clicking such an URI which contains a testnet payment request
         // will start a mainnet instance and throw a "wrong network" error.
-        if (arg.startsWith(BITCOIN_IPC_PREFIX, Qt::CaseInsensitive)) // dash: URI
+        if (arg.startsWith(BITCOIN_IPC_PREFIX, Qt::CaseInsensitive)) // energi: URI
         {
             savedPaymentRequests.append(arg);
 
@@ -310,7 +310,7 @@ PaymentServer::PaymentServer(QObject* parent, bool startLocalServer) :
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     // Install global event filter to catch QFileOpenEvents
-    // on Mac: sent when you click dash: links
+    // on Mac: sent when you click energi: links
     // other OSes: helpful when dealing with payment request files
     if (parent)
         parent->installEventFilter(this);
@@ -327,7 +327,7 @@ PaymentServer::PaymentServer(QObject* parent, bool startLocalServer) :
         if (!uriServer->listen(name)) {
             // constructor is called early in init, so don't use "Q_EMIT message()" here
             QMessageBox::critical(0, tr("Payment request error"),
-                tr("Cannot start dash: click-to-pay handler"));
+                tr("Cannot start energi: click-to-pay handler"));
         }
         else {
             connect(uriServer, SIGNAL(newConnection()), this, SLOT(handleURIConnection()));
@@ -342,7 +342,7 @@ PaymentServer::~PaymentServer()
 }
 
 //
-// OSX-specific way of handling dash: URIs and PaymentRequest mime types.
+// OSX-specific way of handling energi: URIs and PaymentRequest mime types.
 // Also used by paymentservertests.cpp and when opening a payment request file
 // via "Open URI..." menu entry.
 //
@@ -368,7 +368,7 @@ void PaymentServer::initNetManager()
     if (netManager != NULL)
         delete netManager;
 
-    // netManager is used to fetch paymentrequests given in dash: URIs
+    // netManager is used to fetch paymentrequests given in energi: URIs
     netManager = new QNetworkAccessManager(this);
 
     QNetworkProxy proxy;
@@ -408,7 +408,7 @@ void PaymentServer::handleURIOrFile(const QString& s)
         return;
     }
 
-    if (s.startsWith(BITCOIN_IPC_PREFIX, Qt::CaseInsensitive)) // dash: URI
+    if (s.startsWith(BITCOIN_IPC_PREFIX, Qt::CaseInsensitive)) // energi: URI
     {
 #if QT_VERSION < 0x050000
         QUrl uri(s);
@@ -452,7 +452,7 @@ void PaymentServer::handleURIOrFile(const QString& s)
             }
             else
                 Q_EMIT message(tr("URI handling"),
-                    tr("URI cannot be parsed! This can be caused by an invalid Dash address or malformed URI parameters."),
+                    tr("URI cannot be parsed! This can be caused by an invalid Energi address or malformed URI parameters."),
                     CClientUIInterface::ICON_WARNING);
 
             return;
@@ -551,7 +551,7 @@ bool PaymentServer::processPaymentRequest(const PaymentRequestPlus& request, Sen
     recipient.paymentRequest = request;
     recipient.message = GUIUtil::HtmlEscape(request.getDetails().memo());
 
-    request.getMerchant(PaymentServer::certStore, recipient.authenticatedMerchant);
+    request.getMerchant(certStore.get(), recipient.authenticatedMerchant);
 
     QList<std::pair<CScript, CAmount> > sendingTos = request.getPayTo();
     QStringList addresses;
@@ -564,7 +564,7 @@ bool PaymentServer::processPaymentRequest(const PaymentRequestPlus& request, Sen
             addresses.append(QString::fromStdString(CBitcoinAddress(dest).ToString()));
         }
         else if (!recipient.authenticatedMerchant.isEmpty()) {
-            // Unauthenticated payment requests to custom dash addresses are not supported
+            // Unauthenticated payment requests to custom energi addresses are not supported
             // (there is no good way to tell the user where they are paying in a way they'd
             // have a chance of understanding).
             Q_EMIT message(tr("Payment request rejected"),
@@ -573,7 +573,7 @@ bool PaymentServer::processPaymentRequest(const PaymentRequestPlus& request, Sen
             return false;
         }
 
-        // Dash amounts are stored as (optional) uint64 in the protobuf messages (see paymentrequest.proto),
+        // Energi amounts are stored as (optional) uint64 in the protobuf messages (see paymentrequest.proto),
         // but CAmount is defined as int64_t. Because of that we need to verify that amounts are in a valid range
         // and no overflow has happened.
         if (!verifyAmount(sendingTo.second)) {
@@ -649,7 +649,7 @@ void PaymentServer::fetchPaymentACK(CWallet* wallet, SendCoinsRecipient recipien
     }
     else {
         CPubKey newKey;
-        if (wallet->GetKeyFromPool(newKey)) {
+        if (wallet->GetKeyFromPool(newKey, false)) {
             CKeyID keyID = newKey.GetID();
             wallet->SetAddressBook(keyID, strAccount, "refund");
 
@@ -807,4 +807,9 @@ bool PaymentServer::verifyAmount(const CAmount& requestAmount)
             .arg(MAX_MONEY);
     }
     return fVerified;
+}
+
+X509_STORE* PaymentServer::getCertStore()
+{
+    return certStore.get();
 }

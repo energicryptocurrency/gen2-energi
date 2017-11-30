@@ -5,8 +5,8 @@
 #include "coins.h"
 #include "random.h"
 #include "uint256.h"
-#include "test/test_dash.h"
-#include "main.h"
+#include "test/test_energi.h"
+#include "validation.h"
 #include "consensus/validation.h"
 
 #include <vector>

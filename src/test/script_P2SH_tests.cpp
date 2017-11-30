@@ -4,12 +4,12 @@
 
 #include "key.h"
 #include "keystore.h"
-#include "main.h"
+#include "validation.h"
 #include "policy/policy.h"
 #include "script/script.h"
 #include "script/script_error.h"
 #include "script/sign.h"
-#include "test/test_dash.h"
+#include "test/test_energi.h"
 
 #ifdef ENABLE_WALLET
 #include "wallet/wallet_ismine.h"

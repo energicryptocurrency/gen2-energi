@@ -14,7 +14,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         initialize_chain_clean(self.options.tmpdir, 4)
 
     def setup_network(self, split=False):
-        self.nodes = start_nodes(4, self.options.tmpdir)
+        self.nodes = start_nodes(4, self.options.tmpdir, [['-usehd=0'], ['-usehd=0'], ['-usehd=0'], ['-usehd=0']])
 
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)
@@ -416,7 +416,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         mSigObj = self.nodes[2].addmultisigaddress(2, [addr1Obj['pubkey'], addr2Obj['pubkey']])
 
 
-        # send 12 DASH to msig addr
+        # send 12 ENERGI to msig addr
         txId = self.nodes[0].sendtoaddress(mSigObj, 12)
         self.sync_all()
         self.nodes[1].generate(1)
@@ -444,7 +444,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         stop_nodes(self.nodes)
         wait_bitcoinds()
 
-        self.nodes = start_nodes(4, self.options.tmpdir)
+        self.nodes = start_nodes(4, self.options.tmpdir, [['-usehd=0'], ['-usehd=0'], ['-usehd=0'], ['-usehd=0']])
         # This test is not meant to test fee estimation and we'd like
         # to be sure all txs are sent at a consistent desired feerate
         for node in self.nodes:
@@ -456,6 +456,23 @@ class RawTransactionsTest(BitcoinTestFramework):
         connect_nodes_bi(self.nodes,0,3)
         self.is_network_split=False
         self.sync_all()
+
+        # drain the keypool
+        self.nodes[1].getnewaddress()
+        inputs = []
+        outputs = {self.nodes[0].getnewaddress():1.1}
+        rawTx = self.nodes[1].createrawtransaction(inputs, outputs)
+        # fund a transaction that requires a new key for the change output
+        # creating the key must be impossible because the wallet is locked
+        try:
+            fundedTx = self.nodes[1].fundrawtransaction(rawTx)
+            raise AssertionError("Wallet unlocked without passphrase")
+        except JSONRPCException as e:
+            assert('Keypool ran out' in e.error['message'])
+
+        #refill the keypool
+        self.nodes[1].walletpassphrase("test", 100)
+        self.nodes[1].walletlock()
 
         try:
             self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), 12)

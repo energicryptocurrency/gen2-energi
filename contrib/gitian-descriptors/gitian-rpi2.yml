@@ -1,5 +1,5 @@
 ---
-name: "dash-raspberry-0.12"
+name: "energi-raspberry-0.12"
 enable_cache: true
 suites:
 - "precise"
@@ -17,8 +17,8 @@ packages:
 - "binutils-gold"
 reference_datetime: "2017-01-01 00:00:00"
 remotes:
-- "url": "https://github.com/dashpay/dash.git"
-  "dir": "dash"
+- "url": "https://github.com/energicryptocurrency/energi.git"
+  "dir": "energi"
 files:
 - "raspberrypi-tools.tar.gz"
 script: |
@@ -67,7 +67,7 @@ script: |
   done
   export PATH=${WRAP_DIR}:${PATH}
 
-  cd dash
+  cd energi
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
   for i in $HOSTS; do
@@ -78,13 +78,13 @@ script: |
   ./autogen.sh
   ./configure --prefix=${BASEPREFIX}/`echo "${HOSTS}" | awk '{print $1;}'`
   make NO_QT=1 dist
-  SOURCEDIST=`echo dashcore-*.tar.gz`
+  SOURCEDIST=`echo energicore-*.tar.gz`
   DISTNAME=`echo ${SOURCEDIST} | sed 's/.tar.*//'`
   # Correct tar file order
   mkdir -p temp
   pushd temp
   tar xf ../$SOURCEDIST
-  find dashcore-* | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ../$SOURCEDIST
+  find energicore-* | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ../$SOURCEDIST
   popd
 
   ORIGPATH="$PATH"

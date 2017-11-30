@@ -5,7 +5,7 @@
 #ifndef GOVERNANCE_OBJECT_H
 #define GOVERNANCE_OBJECT_H
 
-//#define ENABLE_DASH_DEBUG
+//#define ENABLE_ENERGI_DEBUG
 
 #include "cachemultimap.h"
 #include "governance-exceptions.h"
@@ -37,6 +37,7 @@ static const int GOVERNANCE_OBJECT_WATCHDOG = 3;
 static const CAmount GOVERNANCE_PROPOSAL_FEE_TX = (5.0*COIN);
 
 static const int64_t GOVERNANCE_FEE_CONFIRMATIONS = 6;
+static const int64_t GOVERNANCE_MIN_RELAY_FEE_CONFIRMATIONS = 1;
 static const int64_t GOVERNANCE_UPDATE_MIN = 60*60;
 static const int64_t GOVERNANCE_DELETION_DELAY = 10*60;
 static const int64_t GOVERNANCE_ORPHAN_EXPIRATION_TIME = 10*60;
@@ -115,13 +116,13 @@ class CGovernanceObject
     friend class CGovernanceTriggerManager;
 
 public: // Types
-    typedef std::map<int, vote_rec_t> vote_m_t;
+    typedef std::map<COutPoint, vote_rec_t> vote_m_t;
 
     typedef vote_m_t::iterator vote_m_it;
 
     typedef vote_m_t::const_iterator vote_m_cit;
 
-    typedef CacheMultiMap<CTxIn, vote_time_pair_t> vote_mcache_t;
+    typedef CacheMultiMap<COutPoint, vote_time_pair_t> vote_mcache_t;
 
 private:
     /// critical section to protect the inner data structures
@@ -253,7 +254,7 @@ public:
 
     // Signature related functions
 
-    void SetMasternodeInfo(const CTxIn& vin);
+    void SetMasternodeVin(const COutPoint& outpoint);
     bool Sign(CKey& keyMasternode, CPubKey& pubKeyMasternode);
     bool CheckSignature(CPubKey& pubKeyMasternode);
 
@@ -263,10 +264,10 @@ public:
 
     bool IsValidLocally(std::string& strError, bool fCheckCollateral);
 
-    bool IsValidLocally(std::string& strError, bool& fMissingMasternode, bool fCheckCollateral);
+    bool IsValidLocally(std::string& strError, bool& fMissingMasternode, bool& fMissingConfirmations, bool fCheckCollateral);
 
     /// Check the collateral transaction for the budget proposal/finalized budget
-    bool IsCollateralValid(std::string& strError);
+    bool IsCollateralValid(std::string& strError, bool &fMissingConfirmations);
 
     void UpdateLocalValidity();
 
@@ -278,7 +279,7 @@ public:
 
     UniValue GetJSONObject();
 
-    void Relay();
+    void Relay(CConnman& connman);
 
     uint256 GetHash() const;
 
@@ -292,7 +293,7 @@ public:
     int GetNoCount(vote_signal_enum_t eVoteSignalIn) const;
     int GetAbstainCount(vote_signal_enum_t eVoteSignalIn) const;
 
-    bool GetCurrentMNVotes(const CTxIn& mnCollateralOutpoint, vote_rec_t& voteRecord);
+    bool GetCurrentMNVotes(const COutPoint& mnCollateralOutpoint, vote_rec_t& voteRecord);
 
     // FUNCTIONS FOR DEALING WITH DATA STRING
 
@@ -342,14 +343,13 @@ private:
 
     bool ProcessVote(CNode* pfrom,
                      const CGovernanceVote& vote,
-                     CGovernanceException& exception);
-
-    void RebuildVoteMap();
+                     CGovernanceException& exception,
+                     CConnman& connman);
 
     /// Called when MN's which have voted on this object have been removed
     void ClearMasternodeVotes();
 
-    void CheckOrphanVotes();
+    void CheckOrphanVotes(CConnman& connman);
 
 };
 

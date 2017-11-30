@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include "crypto/common.h"
+#include "crypto/egihash.h"
 
 /** Template base class for fixed-sized opaque blobs. */
 template<unsigned int BITS>
@@ -116,6 +117,7 @@ public:
     uint256() {}
     uint256(const base_blob<256>& b) : base_blob<256>(b) {}
     explicit uint256(const std::vector<unsigned char>& vch) : base_blob<256>(vch) {}
+    explicit uint256(const egihash::h256_t & h) : base_blob<256>() { memcpy(data, h.b, h.hash_size); }
 
     /** A cheap hash function that just returns 64 bits from the result, it can be
      * used when the contents are considered uniformly random. It is not appropriate

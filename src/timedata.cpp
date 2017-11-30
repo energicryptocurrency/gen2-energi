@@ -4,7 +4,7 @@
 
 #include "timedata.h"
 
-#include "netbase.h"
+#include "netaddress.h"
 #include "sync.h"
 #include "ui_interface.h"
 #include "util.h"
@@ -99,7 +99,7 @@ void AddTimeData(const CNetAddr& ip, int64_t nOffsetSample)
                 if (!fMatch)
                 {
                     fDone = true;
-                    string strMessage = _("Please check that your computer's date and time are correct! If your clock is wrong Dash Core will not work properly.");
+                    string strMessage = _("Please check that your computer's date and time are correct! If your clock is wrong Energi Core will not work properly.");
                     strMiscWarning = strMessage;
                     uiInterface.ThreadSafeMessageBox(strMessage, "", CClientUIInterface::MSG_WARNING);
                 }

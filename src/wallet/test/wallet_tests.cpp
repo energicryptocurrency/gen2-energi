@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-#include "test/test_dash.h"
+#include "test/test_energi.h"
 
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
@@ -48,7 +48,7 @@ static void add_coin(const CAmount& nValue, int nAge = 6*24, bool fIsFromMe = fa
         wtx->fDebitCached = true;
         wtx->nDebitCached = 1;
     }
-    COutput output(wtx, nInput, nAge, true);
+    COutput output(wtx, nInput, nAge, true, true);
     vCoins.push_back(output);
 }
 

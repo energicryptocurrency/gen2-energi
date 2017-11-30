@@ -1,14 +1,24 @@
 *.sublime-project
 *.sublime-workspace
+.vscode
 todo.txt
 reset-files.bash
+tags
+TAGS
 
 *.tar.gz
 
 *.exe
-src/dash
-src/dashd
-src/dash-cli
+src/energi
+src/energid
+src/energi-cli
+src/energi-tx
+src/test/test_energi
+src/qt/test/test_energi-qt
+src/bench/bench_energi
+src/qt/energi-qt
+
+# will remove this and other instances of dash later, when rebranding is complete
 src/dash-tx
 src/test/test_dash
 src/qt/test/test_dash-qt
@@ -35,8 +45,14 @@ config.log
 config.status
 configure
 libtool
+
+# remove when rebranded
 src/config/dash-config.h
 src/config/dash-config.h.in
+
+
+src/config/energi-config.h
+src/config/energi-config.h.in
 src/config/stamp-h1
 share/setup.nsi
 share/qt/Info.plist
@@ -63,6 +79,7 @@ libconftest.dylib*
 *.o-*
 *.patch
 .dash
+.energi
 *.a
 *.pb.cc
 *.pb.h
@@ -84,8 +101,12 @@ Makefile
 dash-qt
 Dash-Qt.app
 
+energi-qt
+Energi-Qt.app
+
 # Unit-tests
 Makefile.test
+energi-qt_test
 dash-qt_test
 src/test/buildenv.py
 
@@ -100,6 +121,7 @@ build
 *.gcno
 *.gcda
 /*.info
+test_energi.coverage/
 test_dash.coverage/
 total.coverage/
 coverage_percent.txt
@@ -123,7 +145,8 @@ share/BitcoindComparisonTool.jar
 .autotools
 /doc/doxygen/
 
-libbitcoinconsensus.pc
+libenergiconsensus.pc
+src/qt/energi-qt.bash
 src/qt/dash-qt.bash
 qa/pull-tester/tests-config.sh
 

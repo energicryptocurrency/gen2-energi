@@ -1,0 +1,22 @@
+[Unit]
+Description=Energi's distributed currency daemon
+After=network.target
+
+[Service]
+User=energicore
+Group=energicore
+
+Type=forking
+PIDFile=/var/lib/energid/energid.pid
+ExecStart=/usr/bin/energid -daemon -pid=/var/lib/energid/energid.pid \
+-conf=/etc/energicore/energi.conf -datadir=/var/lib/energid -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

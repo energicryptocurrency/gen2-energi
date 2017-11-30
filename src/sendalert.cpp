@@ -12,8 +12,8 @@ If you need to broadcast an alert, here's what to do:
 1. Modify alert parameters below, see alert.* and comments in the code
    for what does what.
 
-2. run dashd with -printalert or -sendalert like this:
-   /path/to/dashd -printalert
+2. run energid with -printalert or -sendalert like this:
+   /path/to/energid -printalert
 
 One minute after starting up the alert will be broadcast. It is then
 flooded through the network until the nRelayUntil time, and will be
@@ -23,7 +23,7 @@ If you screw up something, send another alert with nCancel set to cancel
 the bad alert.
 */
 
-void ThreadSendAlert()
+void ThreadSendAlert(CConnman& connman)
 {
     if (!mapArgs.count("-sendalert") && !mapArgs.count("-printalert"))
         return;
@@ -42,8 +42,8 @@ void ThreadSendAlert()
     // Nodes never save alerts to disk, they are in-memory-only.
     //
     CAlert alert;
-    alert.nRelayUntil   = GetTime() + 15 * 60;
-    alert.nExpiration   = GetTime() + 30 * 60 * 60;
+    alert.nRelayUntil   = GetAdjustedTime() + 15 * 60;
+    alert.nExpiration   = GetAdjustedTime() + 30 * 60 * 60;
     alert.nID           = 1;  // keep track of alert IDs somewhere
     alert.nCancel       = 0;   // cancels previous messages up to this ID number
 
@@ -57,10 +57,10 @@ void ThreadSendAlert()
     //  Higher numbers mean higher priority
     alert.nPriority     = 5000;
     alert.strComment    = "";
-    alert.strStatusBar  = "URGENT: Upgrade required: see https://www.dash.org";
+    alert.strStatusBar  = "URGENT: Upgrade required: see http://www.energi.world";
 
     // Set specific client version/versions here. If setSubVer is empty, no filtering on subver is done:
-    // alert.setSubVer.insert(std::string("/Dash Core:0.12.0.58/"));
+    // alert.setSubVer.insert(std::string("/Energi Core:0.1.0.0/"));
 
     // Sign
     if(!alert.Sign())
@@ -91,7 +91,7 @@ void ThreadSendAlert()
     // Confirm
     if (!mapArgs.count("-sendalert"))
         return;
-    while (vNodes.empty() && !ShutdownRequested())
+    while (connman.GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 && !ShutdownRequested())
         MilliSleep(500);
     if (ShutdownRequested())
         return;
@@ -100,15 +100,13 @@ void ThreadSendAlert()
     printf("ThreadSendAlert() : Sending alert\n");
     int nSent = 0;
     {
-        LOCK(cs_vNodes);
-        BOOST_FOREACH(CNode* pnode, vNodes)
-        {
-            if (alert2.RelayTo(pnode))
+        connman.ForEachNode([&alert2, &connman, &nSent](CNode* pnode) {
+            if (alert2.RelayTo(pnode, connman))
             {
                 printf("ThreadSendAlert() : Sent alert to %s\n", pnode->addr.ToString().c_str());
                 nSent++;
             }
-        }
+        });
     }
     printf("ThreadSendAlert() : Alert sent to %d nodes\n", nSent);
 }

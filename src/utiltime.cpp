@@ -4,7 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/dash-config.h"
+#include "config/energi-config.h"
 #endif
 
 #include "tinyformat.h"
@@ -45,6 +45,11 @@ int64_t GetTimeMicros()
                    boost::posix_time::ptime(boost::gregorian::date(1970,1,1))).total_microseconds();
     assert(now > 0);
     return now;
+}
+
+int64_t GetSystemTimeInSeconds()
+{
+    return GetTimeMicros()/1000000;
 }
 
 /** Return a time useful for the debug log */

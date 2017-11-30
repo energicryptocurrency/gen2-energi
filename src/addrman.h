@@ -5,7 +5,7 @@
 #ifndef BITCOIN_ADDRMAN_H
 #define BITCOIN_ADDRMAN_H
 
-#include "netbase.h"
+#include "netaddress.h"
 #include "protocol.h"
 #include "random.h"
 #include "sync.h"
@@ -175,9 +175,6 @@ private:
     //! critical section to protect the inner data structures
     mutable CCriticalSection cs;
 
-    //! secret key to randomize bucket select with
-    uint256 nKey;
-
     //! last used nId
     int nIdCount;
 
@@ -203,6 +200,8 @@ private:
     int vvNew[ADDRMAN_NEW_BUCKET_COUNT][ADDRMAN_BUCKET_SIZE];
 
 protected:
+    //! secret key to randomize bucket select with
+    uint256 nKey;
 
     //! Find an entry.
     CAddrInfo* Find(const CNetAddr& addr, int *pnId = NULL);
@@ -235,6 +234,9 @@ protected:
     //! Select an address to connect to, if newOnly is set to true, only the new table is selected from.
     CAddrInfo Select_(bool newOnly);
 
+    //! Wraps GetRandInt to allow tests to override RandomInt and make it determinismistic.
+    virtual int RandomInt(int nMax);
+
 #ifdef DEBUG_ADDRMAN
     //! Perform consistency check. Returns an error code or zero.
     int Check_();
@@ -245,6 +247,9 @@ protected:
 
     //! Mark an entry as currently-connected-to.
     void Connected_(const CService &addr, int64_t nTime);
+
+    //! Update an entry's service bits.
+    void SetServices_(const CService &addr, ServiceFlags nServices);
 
 public:
     /**
@@ -569,10 +574,13 @@ public:
             Check();
         }
     }
-    
-    //! Ensure that bucket placement is always the same for testing purposes.
-    void MakeDeterministic(){
-        nKey.SetNull(); //Do not use outside of tests.
+
+    void SetServices(const CService &addr, ServiceFlags nServices)
+    {
+        LOCK(cs);
+        Check();
+        SetServices_(addr, nServices);
+        Check();
     }
 
 };

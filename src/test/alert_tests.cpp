@@ -9,13 +9,12 @@
 #include "chainparams.h"
 #include "clientversion.h"
 #include "data/alertTests.raw.h"
-#include "main.h" // For PartitionCheck
 #include "serialize.h"
 #include "streams.h"
 #include "util.h"
 #include "utilstrencodings.h"
 
-#include "test/test_dash.h"
+#include "test/test_energi.h"
 
 #include <fstream>
 
@@ -146,7 +145,7 @@ BOOST_FIXTURE_TEST_SUITE(Alert_tests, ReadAlerts)
 // - update alerts in GenerateAlertTests() (optional)
 // - enable code below (#if 1)
 // - replace "fffffffffffffffffffffffffffffffffffffffffffffffffff" with the actual MAINNET privkey
-// - recompile and run "/path/to/test_dash -t Alert_test"
+// - recompile and run "/path/to/test_energi -t Alert_test"
 //
 // NOTE: make sure to disable code and remove alert privkey when you're done!
 //
@@ -230,67 +229,6 @@ BOOST_AUTO_TEST_CASE(AlertNotify)
     BOOST_CHECK_EQUAL(r[3], "'Evil Alert; /bin/ls; echo ' ");
 #endif
     boost::filesystem::remove(temp);
-
-    SetMockTime(0);
-}
-
-static bool falseFunc() { return false; }
-
-BOOST_AUTO_TEST_CASE(PartitionAlert)
-{
-    // Test PartitionCheck
-    CCriticalSection csDummy;
-    CBlockIndex indexDummy[100];
-    CChainParams& params = Params(CBaseChainParams::MAIN);
-    int64_t nPowTargetSpacing = params.GetConsensus().nPowTargetSpacing;
-
-    // Generate fake blockchain timestamps relative to
-    // an arbitrary time:
-    int64_t now = 1427379054;
-    SetMockTime(now);
-    for (int i = 0; i < 100; i++)
-    {
-        indexDummy[i].phashBlock = NULL;
-        if (i == 0) indexDummy[i].pprev = NULL;
-        else indexDummy[i].pprev = &indexDummy[i-1];
-        indexDummy[i].nHeight = i;
-        indexDummy[i].nTime = now - (100-i)*nPowTargetSpacing;
-        // Other members don't matter, the partition check code doesn't
-        // use them
-    }
-
-    strMiscWarning = "";
-
-    // Test 1: chain with blocks every nPowTargetSpacing seconds,
-    // as normal, no worries:
-    PartitionCheck(falseFunc, csDummy, &indexDummy[99], nPowTargetSpacing);
-    BOOST_CHECK_MESSAGE(strMiscWarning.empty(), strMiscWarning);
-
-    // Test 2: go 52.5 minutes without a block, expect a warning:
-    now += (3*60*60+30*60)/4; // we have 4x faster blocks
-    SetMockTime(now);
-    PartitionCheck(falseFunc, csDummy, &indexDummy[99], nPowTargetSpacing);
-    BOOST_CHECK(!strMiscWarning.empty());
-    BOOST_TEST_MESSAGE(std::string("Got alert text: ")+strMiscWarning);
-    strMiscWarning = "";
-
-    // Test 3: test the "partition alerts only go off once per day"
-    // code:
-    now += 60*10;
-    SetMockTime(now);
-    PartitionCheck(falseFunc, csDummy, &indexDummy[99], nPowTargetSpacing);
-    BOOST_CHECK(strMiscWarning.empty());
-
-    // Test 4: get 2.5 times as many blocks as expected:
-    now += 60*60*24; // Pretend it is a day later
-    SetMockTime(now);
-    int64_t quickSpacing = nPowTargetSpacing*2/5;
-    for (int i = 0; i < 100; i++) // Tweak chain timestamps:
-        indexDummy[i].nTime = now - (100-i)*quickSpacing;
-    PartitionCheck(falseFunc, csDummy, &indexDummy[99], nPowTargetSpacing);
-    BOOST_CHECK(!strMiscWarning.empty());
-    BOOST_TEST_MESSAGE(std::string("Got alert text: ")+strMiscWarning);
-    strMiscWarning = "";
 
     SetMockTime(0);
 }

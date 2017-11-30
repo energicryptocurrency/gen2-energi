@@ -1,3 +1,6 @@
+#include <assert>
+static_assert<false, "This Dash source is disabled - see energi.cpp instead">
+
 #ifndef BITCOIN_TEST_TEST_DASH_H
 #define BITCOIN_TEST_TEST_DASH_H
 
@@ -24,10 +27,12 @@ struct BasicTestingSetup {
  * Included are data directory, coins database, script check threads
  * and wallet (if enabled) setup.
  */
+class CConnman;
 struct TestingSetup: public BasicTestingSetup {
     CCoinsViewDB *pcoinsdbview;
     boost::filesystem::path pathTemp;
     boost::thread_group threadGroup;
+    CConnman* connman;
 
     TestingSetup(const std::string& chainName = CBaseChainParams::MAIN);
     ~TestingSetup();

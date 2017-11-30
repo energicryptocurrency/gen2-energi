@@ -14,13 +14,15 @@ class KeyPoolTest(BitcoinTestFramework):
 
     def run_test(self):
         nodes = self.nodes
+
         # Encrypt wallet and wait to terminate
         nodes[0].encryptwallet('test')
         bitcoind_processes[0].wait()
         # Restart node 0
-        nodes[0] = start_node(0, self.options.tmpdir)
+        nodes[0] = start_node(0, self.options.tmpdir, ['-usehd=0'])
         # Keep creating keys
         addr = nodes[0].getnewaddress()
+
         try:
             addr = nodes[0].getnewaddress()
             raise AssertionError('Keypool should be exhausted after one address')
@@ -37,9 +39,8 @@ class KeyPoolTest(BitcoinTestFramework):
         addr.add(nodes[0].getrawchangeaddress())
         addr.add(nodes[0].getrawchangeaddress())
         addr.add(nodes[0].getrawchangeaddress())
-        addr.add(nodes[0].getrawchangeaddress())
-        # assert that four unique addresses were returned
-        assert(len(addr) == 4)
+        # assert that three unique addresses were returned
+        assert(len(addr) == 3)
         # the next one should fail
         try:
             addr = nodes[0].getrawchangeaddress()
@@ -58,7 +59,6 @@ class KeyPoolTest(BitcoinTestFramework):
         nodes[0].generate(1)
         nodes[0].generate(1)
         nodes[0].generate(1)
-        nodes[0].generate(1)
         try:
             nodes[0].generate(1)
             raise AssertionError('Keypool should be exhausted after three addesses')
@@ -67,10 +67,10 @@ class KeyPoolTest(BitcoinTestFramework):
 
     def setup_chain(self):
         print("Initializing test directory "+self.options.tmpdir)
-        initialize_chain(self.options.tmpdir)
+        initialize_chain_clean(self.options.tmpdir, 1)
 
     def setup_network(self):
-        self.nodes = start_nodes(1, self.options.tmpdir)
+        self.nodes = start_nodes(1, self.options.tmpdir, [['-usehd=0']])
 
 if __name__ == '__main__':
     KeyPoolTest().main()

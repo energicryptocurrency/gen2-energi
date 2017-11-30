@@ -1,4 +1,4 @@
-#start-many Setup Guide
+# start-many Setup Guide
 
 ## Two Options for Setting up your Wallet
 There are many ways to setup a wallet to support start-many. This guide will walk through two of them.
@@ -164,7 +164,7 @@ It should return you something like that:
 ```
 dash-cli masternode status
 {
-    "vin" : "CTxIn(COutPoint(<collateral_output>, <collateral_output_index>), scriptSig=)",
+    "outpoint" : "<collateral_output>-<collateral_output_index>",
     "service" : "<ipaddress>:<port>",
     "pubkey" : "<1000 DASH address>",
     "status" : "Masternode successfully started"
