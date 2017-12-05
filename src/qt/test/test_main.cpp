@@ -1,5 +1,6 @@
 // Copyright (c) 2009-2015 The Bitcoin Core developers
 // Copyright (c) 2014-2017 The Dash Core developers
+// Copyright (c) 2017 The Energi Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -44,19 +45,19 @@ int main(int argc, char *argv[])
     SSL_library_init();
 
     URITests test1;
-    if (QTest::qExec(&test1) != 0)
+    if (QTest::qExec(&test1, app.arguments()) != 0)
         fInvalid = true;
 #ifdef ENABLE_WALLET
     PaymentServerTests test2;
-    if (QTest::qExec(&test2) != 0)
+    if (QTest::qExec(&test2, app.arguments()) != 0)
         fInvalid = true;
 #endif
     CompatTests test4;
-    if (QTest::qExec(&test4) != 0)
+    if (QTest::qExec(&test4, app.arguments()) != 0)
         fInvalid = true;
 
     TrafficGraphDataTests test5;
-    if (QTest::qExec(&test5) != 0)
+    if (QTest::qExec(&test5, app.arguments()) != 0)
         fInvalid = true;
 
     return fInvalid;
