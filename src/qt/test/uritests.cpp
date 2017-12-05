@@ -3,7 +3,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "uritests.h"
-#include <QDebug>
 
 #include "guiutil.h"
 #include "walletmodel.h"
