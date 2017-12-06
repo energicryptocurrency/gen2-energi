@@ -566,7 +566,7 @@ public:
         pchMessageStart[2] = 0xab;
         pchMessageStart[3] = 0x60; // Changed the last byte just in case, even though the port is different too, so shouldn't mess with the general testnet
         vAlertPubKey = ParseHex("04c3660259aa76854c135c5b5b0a668cecc7ca81b531dbbb212353c90132ba32cf1a11309eec989856bbf1748d047b69590279633f15e5e9835d263acdedad2400");
-        nDefaultPort = 19796;
+        nDefaultPort = 29797;
         nMaxTipAge = 0x7fffffff; // allow mining on top of old blocks for testnet
         nDelayGetHeadersTime = 24 * 60 * 60;
         nPruneAfterHeight = 1000;
@@ -715,7 +715,7 @@ public:
         pchMessageStart[3] = 0x7f;
         nMaxTipAge = 6 * 60 * 60; // ~144 blocks behind -> 2 x fork detection time, was 24 * 60 * 60 in bitcoin
         nDelayGetHeadersTime = 0; // never delay GETHEADERS in regtests
-        nDefaultPort = 19994;
+        nDefaultPort = 39797;
         nPruneAfterHeight = 1000;
 
         genesis = CreateGenesisBlock(1512083866UL, 3, 0x207fffff, 1, consensus.nBlockSubsidy);
