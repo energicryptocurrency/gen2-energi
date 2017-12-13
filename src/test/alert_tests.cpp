@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(GenerateAlerts)
     GenerateAlertTests();
 }
 #endif
-
+#ifdef ENERGI_TEST_REQUIRES_MAIN_NET
 BOOST_AUTO_TEST_CASE(AlertApplies)
 {
     SetMockTime(11);
@@ -232,5 +232,6 @@ BOOST_AUTO_TEST_CASE(AlertNotify)
 
     SetMockTime(0);
 }
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()
