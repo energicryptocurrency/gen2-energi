@@ -18,14 +18,14 @@
 
 using namespace std;
 
-static const string strSecret1     ("7qh6LYnLN2w2ntz2wwUhRUEgkQ2j8XB16FGw77ZRDZmC29bn7cD");
-static const string strSecret2     ("7rve4MxeWFQHGbSYH6J2yaaZd3MBUqoDEwN6ZAZ6ZHmhTT4r3hW");
-static const string strSecret1C    ("XBuxZHH6TqXUuaSjbVTFR1DQSYecxCB9QA1Koyx5tTc3ddhqEnhm");
-static const string strSecret2C    ("XHMkZqWcY6Zkoq1j42NBijD8z5N5FtNy2Wx7WyAfXX2HZgxry8cr");
-static const CBitcoinAddress addr1 ("Xywgfc872nn5CKtpATCoAjZCc4v96pJczy");
-static const CBitcoinAddress addr2 ("XpmouUj9KKJ99ZuU331ZS1KqsboeFnLGgK");
-static const CBitcoinAddress addr1C("XxV9h4Xmv6Pup8tVAQmH97K6grzvDwMG9F");
-static const CBitcoinAddress addr2C("Xn7ZrYdExuk79Dm7CJCw7sfUWi2qWJSbRy");
+static const string strSecret1     ("Ej3b3UtDHaLBAvnppRbpwzGHhYRBxjRrTvAK9cDYoEctCDVyE298");
+static const string strSecret2     ("EfTHXR9SsWorWr27kqU33gYrzuCnJs5jgMVHNV6RUuCNUCYZbCGo");
+static const string strSecret1C    ("Eegycyw24qQEG88Gxv6NLkbDqL2miwjDZGVHRBVumCxVPMRcGWkq");
+static const string strSecret2C    ("EhcNR2QeFtikrBx4VVa7eBY75xAHPQjsrApGtrQuHSLo8LuuArZv");
+static const CBitcoinAddress addr1 ("ER1oCV1adF3pk3mP4iqZXBGYr4CmQjE8Pb");
+static const CBitcoinAddress addr2 ("ENqqFw8P3DLoY1zvetP4X8qUXmyo8NRFGs");
+static const CBitcoinAddress addr1C("EKMyC5EzKwW4sTioEGgFTbebhtrhFK2miv");
+static const CBitcoinAddress addr2C("ET7cMauEgCGp468V1edL2zupNETJVaDWnw");
 
 
 static const string strAddressBad("Xta1praZQjyELweyMByXyiREw1ZRsjXzVP");
@@ -71,9 +71,9 @@ BOOST_AUTO_TEST_CASE(key_test1)
     BOOST_CHECK(!baddress1.SetString(strAddressBad));
 
     CKey key1  = bsecret1.GetKey();
-    BOOST_CHECK(key1.IsCompressed() == false);
+    BOOST_CHECK(key1.IsCompressed() == true);
     CKey key2  = bsecret2.GetKey();
-    BOOST_CHECK(key2.IsCompressed() == false);
+    BOOST_CHECK(key2.IsCompressed() == true);
     CKey key1C = bsecret1C.GetKey();
     BOOST_CHECK(key1C.IsCompressed() == true);
     CKey key2C = bsecret2C.GetKey();
@@ -109,6 +109,7 @@ BOOST_AUTO_TEST_CASE(key_test1)
     BOOST_CHECK(addr1C.Get() == CTxDestination(pubkey1C.GetID()));
     BOOST_CHECK(addr2C.Get() == CTxDestination(pubkey2C.GetID()));
 
+#ifdef ENERGI_TEST_REQUIRES_MAIN_NET
     for (int n=0; n<16; n++)
     {
         string strMsg = strprintf("Very secret message %i: 11", n);
@@ -186,6 +187,7 @@ BOOST_AUTO_TEST_CASE(key_test1)
     BOOST_CHECK(key2C.SignCompact(hashMsg, detsigc));
     BOOST_CHECK(detsig == ParseHex("1c52d8a32079c11e79db95af63bb9600c5b04f21a9ca33dc129c2bfa8ac9dc1cd561d8ae5e0f6c1a16bde3719c64c2fd70e404b6428ab9a69566962e8771b5944d"));
     BOOST_CHECK(detsigc == ParseHex("2052d8a32079c11e79db95af63bb9600c5b04f21a9ca33dc129c2bfa8ac9dc1cd561d8ae5e0f6c1a16bde3719c64c2fd70e404b6428ab9a69566962e8771b5944d"));
+#endif
 }
 
 BOOST_AUTO_TEST_SUITE_END()

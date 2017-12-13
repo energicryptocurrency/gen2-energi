@@ -86,7 +86,8 @@ BOOST_AUTO_TEST_CASE(bloom_create_insert_serialize_with_tweak)
 
 BOOST_AUTO_TEST_CASE(bloom_create_insert_key)
 {
-    string strSecret = string("7sQb6QHALg4XyHsJHsSNXnEHGhZfzTTUPJXJqaqK7CavQkiL9Ms");
+
+    string strSecret = string("Ej3b3UtDHaLBAvnppRbpwzGHhYRBxjRrTvAK9cDYoEctCDVyE298");
     CBitcoinSecret vchSecret;
     BOOST_CHECK(vchSecret.SetString(strSecret));
 
@@ -102,15 +103,17 @@ BOOST_AUTO_TEST_CASE(bloom_create_insert_key)
     CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
     filter.Serialize(stream, SER_NETWORK, PROTOCOL_VERSION);
 
-    vector<unsigned char> vch = ParseHex("038fc16b080000000000000001");
+    vector<unsigned char> vch = ParseHex("03cc7592080000000000000001");
     vector<char> expected(vch.size());
 
-    for (unsigned int i = 0; i < vch.size(); i++)
+    for (unsigned int i = 0; i < vch.size(); ++i) {
         expected[i] = (char)vch[i];
+    }
 
     BOOST_CHECK_EQUAL_COLLECTIONS(stream.begin(), stream.end(), expected.begin(), expected.end());
 }
 
+#ifdef ENERGI_TEST_REQUIRES_MAIN_NET
 BOOST_AUTO_TEST_CASE(bloom_match)
 {
     // Random real transaction (b4749f017444b051c44dfd2720e88f314ff94f3dd6d56d40ef65854fcd7fff6b)
@@ -180,7 +183,7 @@ BOOST_AUTO_TEST_CASE(bloom_match)
     filter = CBloomFilter(10, 0.000001, 0, BLOOM_UPDATE_ALL);
     filter.insert(COutPoint(uint256S("0x000000d70786e899529d71dbeba91ba216982fb6ba58f3bdaab65e73b7e9260b"), 0));
     BOOST_CHECK_MESSAGE(!filter.IsRelevantAndUpdate(tx), "Simple Bloom filter matched COutPoint for an output we didn't care about");
-}
+
 
 BOOST_AUTO_TEST_CASE(merkle_block_1)
 {
@@ -536,5 +539,6 @@ BOOST_AUTO_TEST_CASE(rolling_bloom)
         BOOST_CHECK(rb2.contains(data[i]));
     }
 }
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()

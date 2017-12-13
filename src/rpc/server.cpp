@@ -355,6 +355,7 @@ static const CRPCCommand vRPCCommands[] =
     { "energi",               "mnsync",                 &mnsync,                 true  },
     { "energi",               "spork",                  &spork,                  true  },
     { "energi",               "getpoolinfo",            &getpoolinfo,            true  },
+    { "energi",               "sentinelping",           &sentinelping,           true  },
 #ifdef ENABLE_WALLET
     { "energi",               "privatesend",            &privatesend,            false },
 
