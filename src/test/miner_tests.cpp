@@ -1,6 +1,7 @@
 // Copyright (c) 2011-2015 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+#ifdef ENERGI_TEST_REQUIRES_MAIN_NET
 
 #include "chainparams.h"
 #include "coins.h"
@@ -389,3 +390,4 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+#endif
