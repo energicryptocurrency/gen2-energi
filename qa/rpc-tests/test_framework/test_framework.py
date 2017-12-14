@@ -27,6 +27,7 @@ from .util import (
     initialize_chain_clean,
 )
 from .authproxy import AuthServiceProxy, JSONRPCException
+import numpy
 
 
 class BitcoinTestFramework(object):
@@ -35,7 +36,7 @@ class BitcoinTestFramework(object):
     def run_test(self):
         for node in self.nodes:
             assert_equal(node.getblockcount(), 200)
-            assert_equal(node.getbalance(), 25*500)
+            assert_equal(numpy.isclose(float(node.getbalance()), 25*20.835), True)
 
     def add_options(self, parser):
         pass

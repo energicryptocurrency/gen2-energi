@@ -40,7 +40,7 @@ def enable_mocktime():
     #with previous versions of the cache, set MOCKTIME 
     #to regtest genesis time + (201 * 156)
     global MOCKTIME
-    MOCKTIME = 1417713337 + (201 * 156)
+    MOCKTIME =  1512083866 + (201 * 156)
 
 def disable_mocktime():
     global MOCKTIME
