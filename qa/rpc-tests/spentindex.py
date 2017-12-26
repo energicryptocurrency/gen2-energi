@@ -90,7 +90,7 @@ class SpentIndexTest(BitcoinTestFramework):
         scriptPubKey2 = CScript([OP_DUP, OP_HASH160, addressHash2, OP_EQUALVERIFY, OP_CHECKSIG])
         tx2 = CTransaction()
         tx2.vin = [CTxIn(COutPoint(int(txid, 16), 0))]
-        tx2.vout = [CTxOut(amount, scriptPubKey2)]
+        tx2.vout = [CTxOut(amount/10, scriptPubKey2)]
         tx.rehash()
         self.nodes[0].importprivkey(privkey)
         signed_tx2 = self.nodes[0].signrawtransaction(binascii.hexlify(tx2.serialize()).decode("utf-8"))
