@@ -84,6 +84,7 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     CBlockIndex *pnext = chainActive.Next(blockindex);
     if (pnext)
         result.push_back(Pair("nextblockhash", pnext->GetBlockHash().GetHex()));
+    result.push_back(Pair("hashmix", pnext->hashMix.GetHex()));
     return result;
 }
 
@@ -125,6 +126,7 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     CBlockIndex *pnext = chainActive.Next(blockindex);
     if (pnext)
         result.push_back(Pair("nextblockhash", pnext->GetBlockHash().GetHex()));
+    result.push_back(Pair("hashmix", pnext->hashMix.GetHex()));
     return result;
 }
 
@@ -357,6 +359,7 @@ UniValue getblockheader(const UniValue& params, bool fHelp)
             "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
             "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
             "  \"nextblockhash\" : \"hash\",      (string) The hash of the next block\n"
+            "  \"hashmix      \" : \"hash\",      (string) The hashmix of the block\n"
             "  \"chainwork\" : \"0000...1f3\"     (string) Expected number of hashes required to produce the current chain (in hex)\n"
             "}\n"
             "\nResult (for verbose=false):\n"
@@ -417,6 +420,7 @@ UniValue getblockheaders(const UniValue& params, bool fHelp)
             "  \"difficulty\" : x.xxx,          (numeric) The difficulty\n"
             "  \"previousblockhash\" : \"hash\",  (string)  The hash of the previous block\n"
             "  \"nextblockhash\" : \"hash\",      (string)  The hash of the next block\n"
+            "  \"hashmix      \" : \"hash\",      (string) The hashmix of the block\n"
             "  \"chainwork\" : \"0000...1f3\"     (string)  Expected number of hashes required to produce the current chain (in hex)\n"
             "}, {\n"
             "       ...\n"
@@ -510,6 +514,7 @@ UniValue getblock(const UniValue& params, bool fHelp)
             "  \"chainwork\" : \"xxxx\",  (string) Expected number of hashes required to produce the chain up to this block (in hex)\n"
             "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
             "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n"
+            "  \"hashmix      \" : \"hash\",      (string) The hashmix of the block\n"
             "}\n"
             "\nResult (for verbose=false):\n"
             "\"data\"             (string) A string that is serialized, hex-encoded data for block 'hash'.\n"
