@@ -15,8 +15,6 @@
 #include "util.h"
 #include "utilstrencodings.h"
 
-#include <univalue.h>
-
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
@@ -405,6 +403,14 @@ static const CRPCCommand vRPCCommands[] =
     { "wallet",             "walletlock",             &walletlock,             true  },
     { "wallet",             "walletpassphrasechange", &walletpassphrasechange, true  },
     { "wallet",             "walletpassphrase",       &walletpassphrase,       true  },
+
+    { "egihash",            "getepoch",               &getepoch,               true  },
+    { "egihash",            "getseedhash",            &getseedhash,            true  },
+    { "egihash",            "getdagsize",             &getdagsize,             true  },
+    { "egihash",            "getdagcachesize",        &getdagcachesize,        true  },
+    { "egihash",            "getdag",                 &getdag,                 true  },
+    { "egihash",            "getcache",               &getdag,                 true  },
+    { "egihash",            "getactivedag",           &getactivedag,           true  },
 #endif // ENABLE_WALLET
 };
 

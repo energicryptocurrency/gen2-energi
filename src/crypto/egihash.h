@@ -522,6 +522,27 @@ namespace egihash
 		*/
 		static size_type get_full_size(uint64_t const block_number) noexcept;
 
+        /// @breif static functioanlity for rpc calls
+        /// {
+        /**
+         * @brief returns the hex encoded seedhash for specified epoch n if n is not specified for current epoch
+         * @param epoch
+         */
+        static std::pair<bool, std::string> getseedhash(int epoch);
+
+        /**
+         * @brief returns the size of the DAG in bytes for the specified epoch n or the current epoch if n is not specified
+         * @param epoch
+         */
+        static std::pair<bool, std::size_t> getdagsize(int epoch);
+
+        /**
+         * @brief returns the size of the DAG chache in bytes for the specified epoch n or the current epoch if n is not specified
+         * @param epoch
+         */
+        static std::pair<bool, std::size_t> getdagcachesize(int epoch);
+        /// }
+
 		/** \brief dag_t private implementation.
 		*/
 		struct impl_t;

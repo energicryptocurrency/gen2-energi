@@ -2,12 +2,15 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+
 #include "egihash.h"
 extern "C"
 {
 #include "keccak-tiny.h"
 }
 
+#include <univalue/include/univalue.h>
+#include "uint256.h"
 #include <stdint.h>
 #include <algorithm>
 #include <atomic>
@@ -1109,6 +1112,42 @@ namespace egihash
 		}
 	}
 
+    using namespace std;
+    auto progress = [](::std::size_t step, ::std::size_t max, int phase) -> bool
+    {
+        switch(phase)
+        {
+            case cache_seeding:
+                cout << "\rSeeding cache...";
+                break;
+            case cache_generation:
+                cout << "\rGenerating cache...";
+                break;
+            case cache_saving:
+                cout << "\rSaving cache...";
+                break;
+            case cache_loading:
+                cout << "\rLoading cache...";
+                break;
+            case dag_generation:
+                cout << "\rGenerating DAG...";
+                break;
+            case dag_saving:
+                cout << "\rSaving DAG...";
+                break;
+            case dag_loading:
+                cout << "\rLoading DAG...";
+                break;
+            default:
+                break;
+        }
+        cout << fixed << setprecision(2)
+            << static_cast<double>(step) / static_cast<double>(max) * 100.0 << "%"
+            << setfill(' ') << setw(80) << flush;
+
+        return true;
+    };
+
 	bool test_function_()
 	{
 		using namespace std;
@@ -1193,40 +1232,6 @@ namespace egihash
 		}
 		#endif
 
-		auto progress = [](::std::size_t step, ::std::size_t max, int phase) -> bool
-		{
-			switch(phase)
-			{
-				case cache_seeding:
-					cout << "\rSeeding cache...";
-					break;
-				case cache_generation:
-					cout << "\rGenerating cache...";
-					break;
-				case cache_saving:
-					cout << "\rSaving cache...";
-					break;
-				case cache_loading:
-					cout << "\rLoading cache...";
-					break;
-				case dag_generation:
-					cout << "\rGenerating DAG...";
-					break;
-				case dag_saving:
-					cout << "\rSaving DAG...";
-					break;
-				case dag_loading:
-					cout << "\rLoading DAG...";
-					break;
-				default:
-					break;
-			}
-			cout << fixed << setprecision(2)
-			<< static_cast<double>(step) / static_cast<double>(max) * 100.0 << "%"
-			<< setfill(' ') << setw(80) << flush;
-
-			return true;
-		};
 
 		try
 		{
@@ -1287,6 +1292,81 @@ namespace egihash
 
 		return result;
 	}
+
+    std::pair<bool, std::string> dag_t::getseedhash(int epoch)
+    {
+        boost::lock_guard<boost::recursive_mutex> lock(get_dag_cache_mutex());
+        const auto iter = get_dag_cache().find(epoch);
+        if (iter != get_dag_cache().end()) {
+            return std::move(std::make_pair(true, uint256S(get_seedhash(epoch)).GetHex()));
+        }
+        return std::make_pair(false, std::string());
+    }
+
+    std::pair<bool, std::size_t> dag_t::getdagsize(int epoch)
+    {
+        boost::lock_guard<boost::recursive_mutex> lock(get_dag_cache_mutex());
+        const auto iter = get_dag_cache().find(epoch);
+        if (iter != get_dag_cache().end()) {
+            return std::move(std::make_pair(true, (iter->second)->size));
+        }
+        return std::make_pair(false, 0);
+    }
+
+    std::pair<bool, std::size_t> dag_t::getdagcachesize(int epoch)
+    {
+        boost::lock_guard<boost::recursive_mutex> lock(get_dag_cache_mutex());
+        const auto iter = get_dag_cache().find(epoch);
+        if (iter != get_dag_cache().end()) {
+            return std::move(std::make_pair(true, (iter->second)->cache.size()));
+        }
+        return std::make_pair(false, 0);
+    }
+}
+
+UniValue getdag(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1) {
+        throw std::runtime_error("getdag\n \"block_num\" "
+                                 "\nReturns a JSON object specifying DAG information"
+                                 "\nArguments"
+                                 "\n\"block_num\" the block number");
+    }
+    UniValue result(UniValue::VOBJ);
+    int blockNum = 0;
+    try {
+        blockNum = std::stoi(params[0].get_str());
+    } catch (const std::invalid_argument& ex) {
+        throw std::runtime_error("provided argument" + params[0].get_str() + " is not an integer");
+    }
+    const auto dag = get_dag(blockNum, egihash::progress);
+    result.push_back(Pair("epoch", dag->epoch));
+    result.push_back(Pair("seedhash", uint256S(get_seedhash(blockNum)).GetHex()));
+    result.push_back(Pair("size", dag->size));
+    result.push_back(Pair("cache_size", dag->cache.size()));
+    return result;
+}
+
+UniValue getcache(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1) {
+        throw std::runtime_error("geticache\n \"block_num\" "
+                                 "\nReturns a JSON object specifying DAG cache information"
+                                 "\nArguments"
+                                 "\n\"block_num\" the block number");
+    }
+    UniValue result(UniValue::VOBJ);
+    int blockNum = 0;
+    try {
+        blockNum = std::stoi(params[0].get_str());
+    } catch (const std::invalid_argument& ex) {
+        throw std::runtime_error("provided argument" + params[0].get_str() + " is not an integer");
+    }
+    const auto dag = get_dag(blockNum, egihash::progress);
+    result.push_back(Pair("epoch", dag->cache.epoch()));
+    result.push_back(Pair("seedhash", uint256S(get_seedhash(blockNum)).GetHex()));
+    result.push_back(Pair("size", dag->cache.size()));
+    return result;
 }
 
 extern "C"

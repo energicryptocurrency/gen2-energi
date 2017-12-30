@@ -12,8 +12,6 @@
 #include "messagesigner.h"
 #include "util.h"
 
-#include <univalue.h>
-
 CGovernanceObject::CGovernanceObject()
 : cs(),
   nObjectType(GOVERNANCE_OBJECT_UNKNOWN),

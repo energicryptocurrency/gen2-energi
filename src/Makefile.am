@@ -244,6 +244,7 @@ libbitcoin_server_a_SOURCES = \
   rpc/blockchain.cpp \
   rpc/masternode.cpp \
   rpc/governance.cpp \
+  rpc/rpcegihash.cpp\
   rpc/mining.cpp \
   rpc/misc.cpp \
   rpc/net.cpp \
