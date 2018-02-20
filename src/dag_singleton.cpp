@@ -6,7 +6,6 @@
 
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
-//#include <mutex>
 
 std::unique_ptr<egihash::dag_t> const & ActiveDAG(std::unique_ptr<egihash::dag_t> next_dag)
 {
@@ -19,13 +18,15 @@ std::unique_ptr<egihash::dag_t> const & ActiveDAG(std::unique_ptr<egihash::dag_t
     // if we have a next_dag swap it
     if (next_dag)
     {
-        active.swap(next_dag);
-    }
+        // unload the previous dag
+        if (active) {
+            active->unload();
+        }
+        // load the dag first if generated in low memory mode
+        next_dag->load();
 
-    // unload the previous dag
-    if (next_dag)
-    {
-        next_dag->unload();
+        // swap
+        active.swap(next_dag);
         next_dag.reset();
     }
 

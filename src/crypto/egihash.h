@@ -79,7 +79,7 @@ namespace egihash
 		*
 		*	The DAG and cache must be regenerated once per epoch.
 		*/
-		static constexpr uint32_t EPOCH_LENGTH = 30000u;
+        static constexpr uint32_t EPOCH_LENGTH = 30000u;
 
 		/** \brief The width of the mix hash for egihash.
 		*/
@@ -348,7 +348,8 @@ namespace egihash
 		cache_loading,		/**< cache_loading is loading the cache from disk */
 		dag_generation,		/**< dag_generation is computing the DAG for a given epoch (block_number) */
 		dag_saving,			/**< dag_saving is saving the DAG to disk */
-		dag_loading			/**< dag_loading is loading the DAG from disk */
+        dag_loading,        /**< dag_loading is loading the DAG from disk */
+        dag_generateAndSave /**< dag_generateAndSave is generating and immediately saving the DAG to the disk */
 	};
 
 	/** \brief progress_callback_type is a function which may be passed to any phase of DAG/cache or generation to receive progress updates.
@@ -551,7 +552,7 @@ namespace egihash
 		*	\param block_number is the block number for which to generate a DAG.
 		*	\param callback (optional) may be used to monitor the progress of DAG generation. Return false to cancel, true to continue.
 		*/
-		dag_t(uint64_t const block_number, progress_callback_type = [](size_type, size_type, int){ return true; });
+        dag_t(uint64_t const block_number, progress_callback_type = [](size_type, size_type, int){ return true; }, bool lowMemory = false);
 
 		/** \brief load a DAG from a file.
 		*
@@ -584,7 +585,15 @@ namespace egihash
 		*	\param file_path is the path to the file the DAG should be saved to.
 		*	\param callback (optional) may be used to monitor the progress of DAG saving. Return false to cancel, true to continue.
 		*/
-		void save(::std::string const & file_path, progress_callback_type callback = [](size_type, size_type, int){ return true; }) const;
+        void save(::std::string const & file_path, progress_callback_type callback = [](size_type, size_type, int){ return true; }) const;
+
+        /** \brief Generate and Save the DAG to a file fur future loading.
+        *
+        *	\param file_path is the path to the file the DAG should be saved to.
+        *	\param callback (optional) may be used to monitor the progress of DAG generation and saving progress.
+        *    Return false to cancel, true to continue.
+        */
+        void generateAndSave(::std::string const & file_path, progress_callback_type callback = [](size_type, size_type, int){ return true; });
 
 		/** \brief Get the cache for this DAG.
 		*
@@ -598,6 +607,13 @@ namespace egihash
 		*	Once all references to the DAG for this epoch are destroyed, it will be freed.
 		*/
 		void unload() const;
+
+        /** \brief Load a DAG to memory if unloaded.
+        *
+        *	For low memory dags it is not loaded, this allows loading DAG manually
+        *	\param callback (optional) may be used to monitor the progress of DAG loading. Return false to cancel, true to continue.
+        */
+        void load(progress_callback_type callback = [](size_type, size_type, int){ return true; });
 
 		/** \brief Get the size of the DAG data in bytes.
 		*
@@ -628,6 +644,14 @@ namespace egihash
 		*	Since DAGs consume a large amount of memory, it is important that they are cached.
 		*/
 		::std::shared_ptr<impl_t> impl;
+
+        /** \brief indicates if the dag is generated in low memory mode or normal
+        */
+        bool low_memory;
+
+        /** \brief dag_file keeps the dag file path, because low memory dag requires manually loading it from the file
+        */
+        std::string dag_file;
 	};
 
 	namespace full
