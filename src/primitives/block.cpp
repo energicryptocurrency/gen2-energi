@@ -73,6 +73,7 @@ uint256 CBlockHeader::GetPOWHash() const
     CBlockHeaderTruncatedLE truncatedBlockHeader(*this);
     egihash::h256_t headerHash(&truncatedBlockHeader, sizeof(truncatedBlockHeader));
     egihash::result_t ret;
+
     // if we have a DAG loaded, use it
     auto const & dag = ActiveDAG();
     if (dag && ((nHeight / egihash::constants::EPOCH_LENGTH) == dag->epoch()))

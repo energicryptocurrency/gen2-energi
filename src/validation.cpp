@@ -2464,9 +2464,20 @@ void CreateDAG(int height, egihash::progress_callback_type callback)
     // try to generate the DAG
     try
     {
-        unique_ptr<dag_t> new_dag(new dag_t(height, callback));
+        auto const & dag = ActiveDAG();
+        unique_ptr<dag_t> new_dag;
         boost::filesystem::create_directories(epoch_file.parent_path());
-        new_dag->save(epoch_file.string());
+        if (dag)
+        {
+            new_dag = unique_ptr<dag_t>(new dag_t(height, callback, true));
+            new_dag->generateAndSave(epoch_file.string(), callback);
+        }
+        else
+        {
+            new_dag = unique_ptr<dag_t>(new dag_t(height, callback));
+            new_dag->save(epoch_file.string());
+        }
+
         ActiveDAG(move(new_dag));
         LogPrint("dag", "DAG generated successfully. Saved to \"%s\".", epoch_file.string());
     }
@@ -2502,13 +2513,18 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     using namespace egihash;
 
     assert(pindexNew->pprev == chainActive.Tip());
-    auto const height = pindexNew->nHeight;
+    auto height = pindexNew->nHeight;
     auto const epoch = height / constants::EPOCH_LENGTH;
 
     // if there have been EPOCH_LENGTH number of blocks since the last DAG was generated,
     // generate a new one
     auto const & active_dag = ActiveDAG();
-    if (active_dag && (epoch > active_dag->epoch())) {
+    if (active_dag &&
+            ((epoch > active_dag->epoch())||
+             // next will require new dag
+                (++height / constants::EPOCH_LENGTH > active_dag->epoch() &&
+                epoch == active_dag->epoch()))) {
+        std::cout << "\nepochs " << epoch << " " << height / constants::EPOCH_LENGTH << " " << active_dag->epoch() << '\n' << std::flush;
         CreateDAG(height, [](::std::size_t step, ::std::size_t max, int phase) -> bool
         {
             double progress = static_cast<double>(step) / static_cast<double>(max) * 100.0;
@@ -2535,13 +2551,15 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
                 case egihash::dag_loading:
                     LogPrintf("Loading DAG... %3.2lf\n", progress);
                     break;
+                case egihash::dag_generateAndSave:
+                    LogPrintf("Generating and Saving DAG... %3.2lf\n", progress);
+                    break;
                 default:
                     break;
             }
             return true;
         });
     }
-
     // Read block from disk.
     int64_t nTime1 = GetTimeMicros();
     CBlock block;

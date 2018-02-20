@@ -1317,6 +1317,9 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             case egihash::dag_loading:
                 progress_handler("Loading Dag ... ");
                 break;
+            case egihash::dag_generateAndSave:
+                progress_handler("Generating and Saving Dag ... ");
+                break;
             default:
                 break;
         }

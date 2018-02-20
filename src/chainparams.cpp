@@ -144,6 +144,9 @@ struct GenesisMiner
                 case dag_loading:
                     cout << "\rLoading DAG...";
                     break;
+                case dag_generateAndSave:
+                    cout << "\rGenerating and Saving DAG...";
+                    break;
                 default:
                     break;
             }
