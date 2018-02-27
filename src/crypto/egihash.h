@@ -554,7 +554,7 @@ namespace egihash
 		*	\param block_number is the block number for which to generate a DAG.
 		*	\param callback (optional) may be used to monitor the progress of DAG generation. Return false to cancel, true to continue.
 		*/
-        dag_t(uint64_t const block_number, progress_callback_type = [](size_type, size_type, int){ return true; }, bool lowMemory = false);
+        dag_t(uint64_t const block_number, progress_callback_type = [](size_type, size_type, int){ return true; });
 
 		/** \brief load a DAG from a file.
 		*
@@ -591,11 +591,12 @@ namespace egihash
 
         /** \brief Generate and Save the DAG to a file fur future loading.
         *
+        *	\param block_number is the block number for which the dag will be generated.
         *	\param file_path is the path to the file the DAG should be saved to.
         *	\param callback (optional) may be used to monitor the progress of DAG generation and saving progress.
         *    Return false to cancel, true to continue.
         */
-        void generateAndSave(::std::string const & file_path, progress_callback_type callback = [](size_type, size_type, int){ return true; });
+        static void generateAndSave(uint64_t block_number, ::std::string const & file_path, progress_callback_type callback = [](size_type, size_type, int){ return true; });
 
 		/** \brief Get the cache for this DAG.
 		*
@@ -609,13 +610,6 @@ namespace egihash
 		*	Once all references to the DAG for this epoch are destroyed, it will be freed.
 		*/
 		void unload() const;
-
-        /** \brief Load a DAG to memory if unloaded.
-        *
-        *	For low memory dags it is not loaded, this allows loading DAG manually
-        *	\param callback (optional) may be used to monitor the progress of DAG loading. Return false to cancel, true to continue.
-        */
-        void load(progress_callback_type callback = [](size_type, size_type, int){ return true; });
 
 		/** \brief Get the size of the DAG data in bytes.
 		*
@@ -637,6 +631,13 @@ namespace egihash
 		*/
 		static ::std::vector<uint64_t> get_loaded();
 
+        /** \brief Checks if the DAG file is corrupted or no. It is checking if file exists and dag size is ok
+        *
+        *	\return returns false if dag file exists and size is ok,
+        *   otherwise dag is condiered as corrupted and true is returned
+        */
+        static bool is_dag_file_corrupted(std::string dag_file);
+
 		/** \brief dag_t private implementation.
 		*/
 		struct impl_t;
@@ -646,14 +647,6 @@ namespace egihash
 		*	Since DAGs consume a large amount of memory, it is important that they are cached.
 		*/
 		::std::shared_ptr<impl_t> impl;
-
-        /** \brief indicates if the dag is generated in low memory mode or normal
-        */
-        bool low_memory;
-
-        /** \brief dag_file keeps the dag file path, because low memory dag requires manually loading it from the file
-        */
-        std::string dag_file;
 	};
 
 	namespace full

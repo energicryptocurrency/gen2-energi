@@ -42,6 +42,7 @@
 #include "masternode-payments.h"
 
 #include <sstream>
+#include <thread>
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
@@ -57,8 +58,8 @@ using namespace std;
 #endif
 
 /**
- * Global state
- */
+* Global state
+*/
 
 CCriticalSection cs_main;
 
@@ -86,6 +87,7 @@ uint64_t nPruneTarget = 0;
 bool fAlerts = DEFAULT_ALERTS;
 bool fEnableReplacement = DEFAULT_ENABLE_REPLACEMENT;
 const int validationBlocksCount = 1000;
+const uint64_t nextDagGenerationDistance = 100;
 
 std::atomic<bool> fDIP0001WasLockedIn{false};
 std::atomic<bool> fDIP0001ActiveAtTip{false};
@@ -2442,12 +2444,76 @@ static int64_t nTimeFlush = 0;
 static int64_t nTimeChainState = 0;
 static int64_t nTimePostConnect = 0;
 
+static std::atomic_bool generationThreadBusy(false);
+
+void GenerateNewDAG(int height, std::string epoch_file)
+{
+    generationThreadBusy = true;
+    using namespace egihash;
+
+    // no callback
+    try
+    {
+        dag_t::generateAndSave(height, epoch_file);
+    }
+    catch (hash_exception const & e)
+    {
+        error("DAG for %u could not be generated: %s", height / constants::EPOCH_LENGTH, e.what());
+    }
+    generationThreadBusy = false;
+}
+
+bool LoadDAG(int height,
+             egihash::progress_callback_type callback = [](
+        egihash::dag_t::size_type, egihash::dag_t::size_type, int){ return true; })
+{
+    if (!GetBoolArg("-usedag", DEFAULT_USEDAG)) {
+        LogPrint("nrghash", "Operating in light mode, not loading a DAG\n");
+        return false;
+    }
+
+    using namespace egihash;
+
+    auto const epoch = height / constants::EPOCH_LENGTH;
+    auto const & seedhash = cache_t::get_seedhash(height).to_hex();
+    stringstream ss;
+    ss << hex << setw(4) << setfill('0') << epoch << "-" << seedhash.substr(0, 12) << ".dag";
+    auto const epoch_file = GetDataDir(false) / "dag" / ss.str();
+
+    LogPrint("nrghash", "DAG file for epoch %u is \"%s\"\n", epoch, epoch_file.string());
+    if (dag_t::is_loaded(epoch))
+    {
+        // already loaded
+        return true;
+    }
+
+    // try to load the DAG from disk
+    try
+    {
+        if (ActiveDAG())
+        {
+            // force dag reset
+            ActiveDAG(nullptr, true);
+        }
+        unique_ptr<dag_t> new_dag(new dag_t(epoch_file.string(), callback));
+        ActiveDAG(move(new_dag));
+        LogPrint("nrghash", "DAG file \"%s\" loaded successfully.\n", epoch_file.string());
+        return true;
+    }
+    catch (hash_exception const & e)
+    {
+        LogPrint("nrghash", "DAG file \"%s\" not loaded, will be generated instead. Message: %s\n", epoch_file.string(), e.what());
+    }
+    return false;
+}
+
 void CreateDAG(int height, egihash::progress_callback_type callback)
 {
+    static std::thread* next_dag_generation_thread = nullptr;
     using namespace egihash;
 
     if (!GetBoolArg("-usedag", DEFAULT_USEDAG)) {
-        LogPrint("nrghash", "Operating in light mode, not loading a DAG\n");
+        LogPrintf("dag: Operating in light mode - skipping DAG creation (usedag=0)");
         return;
     }
 
@@ -2457,39 +2523,44 @@ void CreateDAG(int height, egihash::progress_callback_type callback)
     ss << hex << setw(4) << setfill('0') << epoch << "-" << seedhash.substr(0, 12) << ".dag";
     auto const epoch_file = GetDataDir(false) / "dag" / ss.str();
 
-    LogPrint("nrghash", "DAG file for epoch %u is \"%s\"\n", epoch, epoch_file.string());
-    // try to load the DAG from disk
-    try
+    LogPrint("dag", "DAG file for epoch %u is \"%s\"", epoch, epoch_file.string());
+
+    if (!dag_t::is_dag_file_corrupted(epoch_file.string()))
     {
-        unique_ptr<dag_t> new_dag(new dag_t(epoch_file.string(), callback));
-        ActiveDAG(move(new_dag));
-        LogPrint("nrghash", "DAG file \"%s\" loaded successfully.\n", epoch_file.string());
+        // if file exists and looks ok, then don't generate the same epoch file again
         return;
-    }
-    catch (hash_exception const & e)
-    {
-        LogPrint("nrghash", "DAG file \"%s\" not loaded, will be generated instead. Message: %s\n", epoch_file.string(), e.what());
     }
 
     // try to generate the DAG
     try
     {
         auto const & dag = ActiveDAG();
-        unique_ptr<dag_t> new_dag;
         boost::filesystem::create_directories(epoch_file.parent_path());
         if (dag)
         {
-            new_dag = unique_ptr<dag_t>(new dag_t(height, callback, true));
-            new_dag->generateAndSave(epoch_file.string(), callback);
+            if (generationThreadBusy)
+            {
+                // already generating in another dag generation thread
+                return;
+            }
+            else
+            {
+                if (next_dag_generation_thread) {
+                    delete next_dag_generation_thread;
+                    next_dag_generation_thread = nullptr;
+                }
+            }
+            // if there is already an active dag generate the other with low memory in another thread
+            next_dag_generation_thread  = new std::thread(GenerateNewDAG, height, epoch_file.string());
         }
         else
         {
-            new_dag = unique_ptr<dag_t>(new dag_t(height, callback));
+            // if no dag is generated or loaded, generate in normal mode
+            unique_ptr<dag_t> new_dag = unique_ptr<dag_t>(new dag_t(height, callback));
             new_dag->save(epoch_file.string());
+            ActiveDAG(move(new_dag));
+            LogPrint("nrghash", "DAG generated successfully. Saved to \"%s\".\n", epoch_file.string());
         }
-
-        ActiveDAG(move(new_dag));
-        LogPrint("nrghash", "DAG generated successfully. Saved to \"%s\".\n", epoch_file.string());
     }
     catch (hash_exception const & e)
     {
@@ -2508,11 +2579,14 @@ void InitDAG(egihash::progress_callback_type callback)
     auto const & dag = ActiveDAG();
     if (!dag)
     {
-        auto const height = (max)(GetHeight(), 0);
-        CreateDAG(height, callback);
+        // dag shall be loaded or generated for the next block,
+        // that's why height is calculated as the active height + 1
+        auto const height = (max)(GetHeight(), 0) + 1;
+        if (!LoadDAG(height, callback)) {
+            CreateDAG(height, callback);
+        }
         LogPrint("nrghash", "Loaded or created DAG for epoch %d\n", height / egihash::constants::EPOCH_LENGTH);
     }
-    LogPrint("nrghash", "DAG has been initialized already. Use ActiveDAG() to swap.\n");
 }
 
 /**
@@ -2525,52 +2599,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
 
     assert(pindexNew->pprev == chainActive.Tip());
     auto height = pindexNew->nHeight;
-    auto const epoch = height / constants::EPOCH_LENGTH;
 
-    // if there have been EPOCH_LENGTH number of blocks since the last DAG was generated,
-    // generate a new one
-    auto const & active_dag = ActiveDAG();
-    if (active_dag &&
-            ((epoch > active_dag->epoch())||
-             // next will require new dag
-                (++height / constants::EPOCH_LENGTH > active_dag->epoch() &&
-                epoch == active_dag->epoch()))) {
-        std::cout << "\nepochs " << epoch << " " << height / constants::EPOCH_LENGTH << " " << active_dag->epoch() << '\n' << std::flush;
-        CreateDAG(height, [](::std::size_t step, ::std::size_t max, int phase) -> bool
-        {
-            double progress = static_cast<double>(step) / static_cast<double>(max) * 100.0;
-            switch(phase)
-            {
-                case egihash::cache_seeding:
-                    LogPrint("nrghash", "Seeding cache... %3.2lf\n", progress);
-                    break;
-                case egihash::cache_generation:
-                    LogPrint("nrghash", "Generating cache... %3.2lf\n", progress);
-                    break;
-                case egihash::cache_saving:
-                    LogPrint("nrghash", "Saving cache... %3.2lf\n", progress);
-                    break;
-                case egihash::cache_loading:
-                    LogPrint("nrghash", "Loading cache... %3.2lf\n", progress);
-                    break;
-                case egihash::dag_generation:
-                    LogPrint("nrghash", "Generating DAG... %3.2lf\n", progress);
-                    break;
-                case egihash::dag_saving:
-                    LogPrint("nrghash", "Saving DAG... %3.2lf\n", progress);
-                    break;
-                case egihash::dag_loading:
-                    LogPrint("nrghash", "Loading DAG... %3.2lf\n", progress);
-                    break;
-                case egihash::dag_generateAndSave:
-                    LogPrintf("Generating and Saving DAG... %3.2lf\n", progress);
-                    break;
-                default:
-                    break;
-            }
-            return true;
-        });
-    }
     // Read block from disk.
     int64_t nTime1 = GetTimeMicros();
     CBlock block;
@@ -2621,6 +2650,28 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     int64_t nTime6 = GetTimeMicros(); nTimePostConnect += nTime6 - nTime5; nTimeTotal += nTime6 - nTime1;
     LogPrint("bench", "  - Connect postprocess: %.2fms [%.2fs]\n", (nTime6 - nTime5) * 0.001, nTimePostConnect * 0.000001);
     LogPrint("bench", "- Connect block: %.2fms [%.2fs]\n", (nTime6 - nTime1) * 0.001, nTimeTotal * 0.000001);
+
+
+    // if there have been EPOCH_LENGTH number of blocks since the last DAG was generated,
+    // generate a new one
+    auto const & active_dag = ActiveDAG();
+    if (active_dag)
+    {
+        // next block will require another dag
+        if ((height + 1) / constants::EPOCH_LENGTH > active_dag->epoch())
+        {
+            if (!LoadDAG(height + 1))
+            {
+                // no callack needed because is dag already there, so need to generate in background
+                CreateDAG(height + 1);
+            }
+        }
+        else if ((height + nextDagGenerationDistance) / constants::EPOCH_LENGTH > active_dag->epoch())
+        {
+            CreateDAG(height + nextDagGenerationDistance);
+        }
+
+    }
     return true;
 }
 

@@ -677,16 +677,13 @@ namespace egihash
 		using dag_cache_map = ::std::map<uint64_t /* epoch */, ::std::shared_ptr<impl_t>>;
 		static constexpr uint64_t max_epoch = ::std::numeric_limits<uint64_t>::max();
 
-        impl_t(uint64_t block_number, progress_callback_type callback, bool lowMemory)
+        impl_t(uint64_t block_number, progress_callback_type callback)
 		: epoch(block_number / constants::EPOCH_LENGTH)
 		, size(get_full_size(block_number))
 		, cache(block_number, callback)
 		, data()
 		{
-            if (!lowMemory)
-            {
-                generate(callback);
-            }
+            generate(callback);
 		}
 
 		impl_t(read_function_type read, dag_file_header_t & header, progress_callback_type callback)
@@ -710,12 +707,15 @@ namespace egihash
 			}
 		}
 
-        void generateAndSave(std::string const& file_path, progress_callback_type callback)
+        static void generateAndSave(uint64_t block_number, std::string const& file_path, progress_callback_type callback)
         {
             using namespace std;
             ofstream fs;
             fs.open(file_path, ios::out | ios::binary);
 
+            size_type size = get_full_size(block_number);
+
+            cache_t cache(block_number, callback);
             uint64_t cache_begin = constants::DAG_FILE_HEADER_SIZE + 1;
             uint64_t cache_end = cache_begin + cache.size();
             uint64_t dag_begin = cache_end;
@@ -730,6 +730,8 @@ namespace egihash
                     throw hash_exception("Write failure");
                 }
             };
+
+            uint64_t epoch = block_number / constants::EPOCH_LENGTH;
 
             write(constants::DAG_MAGIC_BYTES, sizeof(constants::DAG_MAGIC_BYTES));
             write(&constants::MAJOR_VERSION, sizeof(constants::MAJOR_VERSION));
@@ -912,7 +914,7 @@ namespace egihash
 	// ensures single threaded construction
 	dag_t::impl_t::dag_cache_map & dag_cache = get_dag_cache();
 
-    ::std::shared_ptr<dag_t::impl_t> get_dag(uint64_t block_number, progress_callback_type callback, bool lowMemory)
+    ::std::shared_ptr<dag_t::impl_t> get_dag(uint64_t block_number, progress_callback_type callback)
 	{
 		using namespace std;
 		uint64_t epoch_number = block_number / constants::EPOCH_LENGTH;
@@ -929,30 +931,20 @@ namespace egihash
 
 		// otherwise create the dag and add it to the cache
 		// this is not locked as it can be a lengthy process and we don't want to block access to the dag cache
-        shared_ptr<dag_t::impl_t> impl(new dag_t::impl_t(block_number, callback, lowMemory));
+        shared_ptr<dag_t::impl_t> impl(new dag_t::impl_t(block_number, callback));
 
 		lock_guard<recursive_mutex> lock(get_dag_cache_mutex());
-        if (!lowMemory)
+        auto insert_pair = get_dag_cache().insert(make_pair(epoch_number, impl));
+        // if insert succeded, return the dag
+        if (insert_pair.second)
         {
-            auto insert_pair = get_dag_cache().insert(make_pair(epoch_number, impl));
-            // if insert succeded, return the dag
-            if (insert_pair.second)
-            {
-                return insert_pair.first->second;
-            }
-            // if insert failed, it's probably already been inserted
-            auto const dag_cache_iterator = get_dag_cache().find(epoch_number);
-            if (dag_cache_iterator != get_dag_cache().end())
-            {
-                return dag_cache_iterator->second;
-            }
+            return insert_pair.first->second;
         }
-        else
+        // if insert failed, it's probably already been inserted
+        auto const dag_cache_iterator = get_dag_cache().find(epoch_number);
+        if (dag_cache_iterator != get_dag_cache().end())
         {
-            // if low memory simply return the impl, nothing more to do
-            if (impl) {
-                return impl;
-            }
+            return dag_cache_iterator->second;
         }
 
 
@@ -1071,14 +1063,13 @@ namespace egihash
 		throw hash_exception("Could not get DAG");
 	}
 
-    dag_t::dag_t(uint64_t block_number, progress_callback_type callback, bool lowMemory)
-    : impl(get_dag(block_number, callback, lowMemory)),
-      low_memory(lowMemory)
+    dag_t::dag_t(uint64_t block_number, progress_callback_type callback)
+    : impl(get_dag(block_number, callback))
 	{
 	}
 
 	dag_t::dag_t(::std::string const & file_path, progress_callback_type callback)
-	: impl(get_dag(file_path, callback))
+    : impl(get_dag(file_path, callback))
 	{
 
 	}
@@ -1103,10 +1094,9 @@ namespace egihash
 		impl->save(file_path, callback);
 	}
 
-    void dag_t::generateAndSave(::std::string const & file_path, progress_callback_type callback)
+    void dag_t::generateAndSave(uint64_t block_number, ::std::string const & file_path, progress_callback_type callback)
     {
-        dag_file = file_path;
-        impl->generateAndSave(file_path, callback);
+        impl_t::generateAndSave(block_number, file_path, callback);
     }
 
 	cache_t dag_t::get_cache() const
@@ -1116,11 +1106,6 @@ namespace egihash
 
 	void dag_t::unload() const
 	{
-        if (low_memory)
-        {
-            // nothing to unload since dag is not in memory
-            return;
-        }
 		auto const i = get_dag_cache().erase(epoch());
 		if (i == 0)
 		{
@@ -1128,17 +1113,6 @@ namespace egihash
 		}
 		get_cache().unload();
 	}
-
-    void dag_t::load(progress_callback_type callback)
-    {
-        if (!low_memory)
-        {
-            // load is needed only for low memory dag
-            return;
-        }
-        low_memory = false;
-        impl = get_dag(dag_file, callback);
-    }
 
 	dag_t::size_type dag_t::get_full_size(uint64_t const block_number) noexcept
 	{
@@ -1166,6 +1140,31 @@ namespace egihash
 		}
 		return loaded_epochs;
 	}
+
+    bool dag_t::is_dag_file_corrupted(std::string dag_file)
+    {
+        using namespace std;
+        //using size_type = dag_t::size_type;
+
+        ifstream fs;
+        fs.open(dag_file, ios::in | ios::binary);
+
+        if (fs.fail())
+        {
+            return true;
+        }
+
+        fs.seekg(0, ios::end);
+        dag_t::size_type const filesize = static_cast<dag_t::size_type>(fs.tellg());
+        fs.seekg(0, ios::beg);
+
+        // check minimum dag size
+        if (filesize < constants::DAG_FILE_MINIMUM_SIZE)
+        {
+            return true;
+        }
+        return false;
+    }
 
 // TODO: reference code, remove me
 #if 0

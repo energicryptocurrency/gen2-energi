@@ -17,8 +17,9 @@
 *	If a valid next_dag is specified, swap the active DAG with next_dag and return the new active DAG (unloads the previous DAG)
 *
 *	\param next_dag (optional) swap the active DAG with next_dag
+*   \param reset (optional) reset the active dag regardless of next_dag value (even if it's empty)
 *	\returns A unique_ptr to the currently active DAG, or a null unique_ptr if no DAG is active.
 */
-std::unique_ptr<egihash::dag_t> const & ActiveDAG(std::unique_ptr<egihash::dag_t> next_dag = std::unique_ptr<egihash::dag_t>());
+std::unique_ptr<egihash::dag_t> const & ActiveDAG(std::unique_ptr<egihash::dag_t> next_dag = std::unique_ptr<egihash::dag_t>(), bool reset = false);
 
 #endif
