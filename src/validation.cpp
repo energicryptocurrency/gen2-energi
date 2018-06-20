@@ -85,6 +85,7 @@ size_t nCoinCacheUsage = 5000 * 300;
 uint64_t nPruneTarget = 0;
 bool fAlerts = DEFAULT_ALERTS;
 bool fEnableReplacement = DEFAULT_ENABLE_REPLACEMENT;
+const int validationBlocksCount = 1000;
 
 std::atomic<bool> fDIP0001WasLockedIn{false};
 std::atomic<bool> fDIP0001ActiveAtTip{false};
@@ -3721,12 +3722,34 @@ CBlockIndex * InsertBlockIndex(uint256 hash)
     return pindexNew;
 }
 
+bool static ValidateLoadedBlocks()
+{
+    // if we have dag in memory then validation is much faster, no need to skip any
+    // or if number of blocks is smaller than validation count then validate all blocks
+    bool validateAllBlocks = ActiveDAG() || mapBlockIndex.size() <= validationBlocksCount;
+
+    BOOST_FOREACH(const PAIRTYPE(uint256, CBlockIndex*)& item, mapBlockIndex)
+    {
+        CBlockIndex* pindex = item.second;
+        if (validateAllBlocks || pindex->nHeight >= mapBlockIndex.size() - validationBlocksCount) {
+            if(!CheckProofOfWork(pindex->GetBlockHeader().GetPOWHash(), pindex->nBits, Params().GetConsensus())) {
+                error("%s: CheckProofOfWork failed: %s", __func__, pindex->ToString());
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 bool static LoadBlockIndexDB()
 {
     const CChainParams& chainparams = Params();
     if (!pblocktree->LoadBlockIndexGuts())
         return false;
 
+    if (!ValidateLoadedBlocks()) {
+        return false;
+    }
     boost::this_thread::interruption_point();
 
     // Calculate nChainWork
@@ -3839,6 +3862,7 @@ bool static LoadBlockIndexDB()
         chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(),
         DateTimeStrFormat("%Y-%m-%d %H:%M:%S", chainActive.Tip()->GetBlockTime()),
         Checkpoints::GuessVerificationProgress(chainparams.Checkpoints(), chainActive.Tip()));
+
 
     return true;
 }
