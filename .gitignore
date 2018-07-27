@@ -155,3 +155,7 @@ dash-cli
 dashd
 dash-qt
 make
+
+# Development VM
+/.vagrant/
+
