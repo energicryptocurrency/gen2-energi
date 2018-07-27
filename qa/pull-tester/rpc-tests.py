@@ -183,8 +183,12 @@ def runtests():
 
             print(("Running testscript %s%s%s ..." % (bold[1], testScripts[i], bold[0])))
             time0 = time.time()
-            subprocess.check_call(
-                rpcTestDir + testScripts[i] + flags, shell=True)
+
+            try:
+                subprocess.check_call(
+                    rpcTestDir + testScripts[i] + flags, shell=True)
+            except subprocess.CalledProcessError:
+                failed = True
             print(("Duration: %s s\n" % (int(time.time() - time0))))
 
             # exit if help is called so we print just one set of
@@ -202,8 +206,11 @@ def runtests():
                 "Running 2nd level testscript "
                 + "%s%s%s ..." % (bold[1], testScriptsExt[i], bold[0])))
             time0 = time.time()
-            subprocess.check_call(
-                rpcTestDir + testScriptsExt[i] + flags, shell=True)
+            try:
+                subprocess.check_call(
+                    rpcTestDir + testScriptsExt[i] + flags, shell=True)
+            except subprocess.CalledProcessError:
+                failed = True
             print(("Duration: %s s\n" % (int(time.time() - time0))))
 
     if coverage:
@@ -211,6 +218,9 @@ def runtests():
 
         print("Cleaning up coverage data")
         coverage.cleanup()
+    
+    if failed:
+        sys.exit(1)
 
 
 class RPCCoverage(object):
