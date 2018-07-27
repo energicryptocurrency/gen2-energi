@@ -70,11 +70,11 @@ if "EGICLI" not in os.environ:
 if EXEEXT == ".exe" and "-win" not in opts:
     # https://github.com/bitcoin/bitcoin/commit/d52802551752140cf41f0d9a225a43e84404d3e9
     # https://github.com/bitcoin/bitcoin/pull/5677#issuecomment-136646964
-    print "Win tests currently disabled by default.  Use -win option to enable"
+    print("Win tests currently disabled by default.  Use -win option to enable")
     sys.exit(0)
 
 if not (ENABLE_WALLET == 1 and ENABLE_UTILS == 1 and ENABLE_BITCOIND == 1):
-    print "No rpc tests to run. Wallet, utils, and bitcoind must all be enabled"
+    print("No rpc tests to run. Wallet, utils, and bitcoind must all be enabled")
     sys.exit(0)
 
 # python-zmq may not be installed. Handle this gracefully and with some helpful info
@@ -160,7 +160,7 @@ def runtests():
 
     if ENABLE_COVERAGE:
         coverage = RPCCoverage()
-        print("Initializing coverage directory at %s\n" % coverage.dir)
+        print(("Initializing coverage directory at %s\n" % coverage.dir))
 
     rpcTestDir = buildDir + '/qa/rpc-tests/'
     run_extended = '-extended' in opts
@@ -175,11 +175,11 @@ def runtests():
                 or testScripts[i] in opts
                 or re.sub(".py$", "", testScripts[i]) in opts ):
 
-            print("Running testscript %s%s%s ..." % (bold[1], testScripts[i], bold[0]))
+            print(("Running testscript %s%s%s ..." % (bold[1], testScripts[i], bold[0])))
             time0 = time.time()
             subprocess.check_call(
                 rpcTestDir + testScripts[i] + flags, shell=True)
-            print("Duration: %s s\n" % (int(time.time() - time0)))
+            print(("Duration: %s s\n" % (int(time.time() - time0))))
 
             # exit if help is called so we print just one set of
             # instructions
@@ -192,13 +192,13 @@ def runtests():
         if (run_extended or testScriptsExt[i] in opts
                 or re.sub(".py$", "", testScriptsExt[i]) in opts):
 
-            print(
+            print((
                 "Running 2nd level testscript "
-                + "%s%s%s ..." % (bold[1], testScriptsExt[i], bold[0]))
+                + "%s%s%s ..." % (bold[1], testScriptsExt[i], bold[0])))
             time0 = time.time()
             subprocess.check_call(
                 rpcTestDir + testScriptsExt[i] + flags, shell=True)
-            print("Duration: %s s\n" % (int(time.time() - time0)))
+            print(("Duration: %s s\n" % (int(time.time() - time0))))
 
     if coverage:
         coverage.report_rpc_coverage()
@@ -235,7 +235,7 @@ class RPCCoverage(object):
 
         if uncovered:
             print("Uncovered RPC commands:")
-            print("".join(("  - %s\n" % i) for i in sorted(uncovered)))
+            print(("".join(("  - %s\n" % i) for i in sorted(uncovered))))
         else:
             print("All RPC commands covered.")
 

@@ -7,14 +7,14 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #
 
-from __future__ import print_function, division
+
 import json
 import struct
 import re
 import os
 import os.path
 import base64
-import httplib
+import http.client
 import sys
 import hashlib
 import energi_hash
@@ -25,7 +25,7 @@ from collections import namedtuple
 settings = {}
 
 def uint32(x):
-	return x & 0xffffffffL
+	return x & 0xffffffff
 
 def bytereverse(x):
 	return uint32(( ((x) << 24) | (((x) << 8) & 0x00ff0000) |
@@ -281,11 +281,11 @@ if __name__ == '__main__':
 	if 'split_timestamp' not in settings:
 		settings['split_timestamp'] = 0
 	if 'max_out_sz' not in settings:
-		settings['max_out_sz'] = 1000L * 1000 * 1000
+		settings['max_out_sz'] = 1000 * 1000 * 1000
 	if 'out_of_order_cache_sz' not in settings:
 		settings['out_of_order_cache_sz'] = 100 * 1000 * 1000
 
-	settings['max_out_sz'] = long(settings['max_out_sz'])
+	settings['max_out_sz'] = int(settings['max_out_sz'])
 	settings['split_timestamp'] = int(settings['split_timestamp'])
 	settings['file_timestamp'] = int(settings['file_timestamp'])
 	settings['netmagic'] = settings['netmagic'].decode('hex')

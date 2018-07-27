@@ -10,7 +10,7 @@ from test_framework.util import *
 class RawTransactionsTest(BitcoinTestFramework):
 
     def setup_chain(self):
-        print("Initializing test directory "+self.options.tmpdir)
+        print(("Initializing test directory "+self.options.tmpdir))
         initialize_chain_clean(self.options.tmpdir, 4)
 
     def setup_network(self, split=False):
@@ -25,7 +25,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.sync_all()
 
     def run_test(self):
-        print "Mining blocks..."
+        print("Mining blocks...")
 
         min_relay_tx_fee = self.nodes[0].getnetworkinfo()['relayfee']
         # This test is not meant to test fee estimation and we'd like
@@ -590,7 +590,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         assert_equal(len(res_dec["vin"]), 1)
         assert_equal(res_dec["vin"][0]["txid"], watchonly_txid)
 
-        assert("fee" in result.keys())
+        assert("fee" in list(result.keys()))
         assert_greater_than(result["changepos"], -1)
 
         ###############################################################

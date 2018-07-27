@@ -205,10 +205,10 @@ def initialize_chain(test_dir):
                 args.append("-connect=127.0.0.1:"+str(p2p_port(0)))
             bitcoind_processes[i] = subprocess.Popen(args)
             if os.getenv("PYTHON_DEBUG", ""):
-                print "initialize_chain: energid started, waiting for RPC to come up"
+                print("initialize_chain: energid started, waiting for RPC to come up")
             wait_for_bitcoind_start(bitcoind_processes[i], rpc_url(i), i)
             if os.getenv("PYTHON_DEBUG", ""):
-                print "initialize_chain: RPC succesfully started"
+                print("initialize_chain: RPC succesfully started")
 
         rpcs = []
         for i in range(4):
@@ -290,11 +290,11 @@ def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=
     if extra_args is not None: args.extend(extra_args)
     bitcoind_processes[i] = subprocess.Popen(args)
     if os.getenv("PYTHON_DEBUG", ""):
-        print "start_node: energid started, waiting for RPC to come up"
+        print("start_node: energid started, waiting for RPC to come up")
     url = rpc_url(i, rpchost)
     wait_for_bitcoind_start(bitcoind_processes[i], url, i)
     if os.getenv("PYTHON_DEBUG", ""):
-        print "start_node: RPC succesfully started"
+        print("start_node: RPC succesfully started")
     proxy = get_rpc_proxy(url, i, timeout=timewait)
 
     if COVERAGE_DIR:
@@ -336,7 +336,7 @@ def set_node_times(nodes, t):
 
 def wait_bitcoinds():
     # Wait for all bitcoinds to cleanly exit
-    for bitcoind in bitcoind_processes.values():
+    for bitcoind in list(bitcoind_processes.values()):
         bitcoind.wait()
     bitcoind_processes.clear()
 
@@ -484,7 +484,7 @@ def assert_is_hex_string(string):
             "Couldn't interpret %r as hexadecimal; raised: %s" % (string, e))
 
 def assert_is_hash_string(string, length=64):
-    if not isinstance(string, basestring):
+    if not isinstance(string, str):
         raise AssertionError("Expected a string, got type %r" % type(string))
     elif length and len(string) != length:
         raise AssertionError(
@@ -506,14 +506,14 @@ def assert_array_result(object_array, to_match, expected, should_not_find = Fals
     num_matched = 0
     for item in object_array:
         all_match = True
-        for key,value in to_match.items():
+        for key,value in list(to_match.items()):
             if item[key] != value:
                 all_match = False
         if not all_match:
             continue
         elif should_not_find == True:
             num_matched = num_matched+1
-        for key,value in expected.items():
+        for key,value in list(expected.items()):
             if item[key] != value:
                 raise AssertionError("%s : expected %s=%s"%(str(item), str(key), str(value)))
             num_matched = num_matched+1
@@ -535,7 +535,7 @@ def create_confirmed_utxos(fee, node, count):
     addr2 = node.getnewaddress()
     if iterations <= 0:
         return utxos
-    for i in xrange(iterations):
+    for i in range(iterations):
         t = utxos.pop()
         inputs = []
         inputs.append({ "txid" : t["txid"], "vout" : t["vout"]})
@@ -561,11 +561,11 @@ def gen_return_txouts():
     # So we have big transactions (and therefore can't fit very many into each block)
     # create one script_pubkey
     script_pubkey = "6a4d0200" #OP_RETURN OP_PUSH2 512 bytes
-    for i in xrange (512):
+    for i in range (512):
         script_pubkey = script_pubkey + "01"
     # concatenate 128 txouts of above script_pubkey which we'll insert before the txout for change
     txouts = "81"
-    for k in xrange(128):
+    for k in range(128):
         # add txout value
         txouts = txouts + "0000000000000000"
         # add length of script_pubkey
@@ -587,7 +587,7 @@ def create_tx(node, coinbase, to_address, amount):
 def create_lots_of_big_transactions(node, txouts, utxos, fee):
     addr = node.getnewaddress()
     txids = []
-    for i in xrange(len(utxos)):
+    for i in range(len(utxos)):
         t = utxos.pop()
         inputs = []
         inputs.append({ "txid" : t["txid"], "vout" : t["vout"]})

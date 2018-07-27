@@ -8,12 +8,12 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #
 
-from __future__ import print_function
+
 import json
 import struct
 import re
 import base64
-import httplib
+import http.client
 import sys
 
 settings = {}
@@ -22,7 +22,7 @@ class BitcoinRPC:
 	def __init__(self, host, port, username, password):
 		authpair = "%s:%s" % (username, password)
 		self.authhdr = "Basic %s" % (base64.b64encode(authpair))
-		self.conn = httplib.HTTPConnection(host, port, False, 30)
+		self.conn = http.client.HTTPConnection(host, port, False, 30)
 
 	def execute(self, obj):
 		self.conn.request('POST', '/', json.dumps(obj),

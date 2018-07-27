@@ -13,11 +13,11 @@ from test_framework.util import *
 try:
     import http.client as httplib
 except ImportError:
-    import httplib
+    import http.client
 try:
     import urllib.parse as urlparse
 except ImportError:
-    import urlparse
+    import urllib.parse
 
 class NodeHandlingTest (BitcoinTestFramework):
     def run_test(self):
@@ -69,7 +69,7 @@ class NodeHandlingTest (BitcoinTestFramework):
         ###########################
         # RPC disconnectnode test #
         ###########################
-        url = urlparse.urlparse(self.nodes[1].url)
+        url = urllib.parse.urlparse(self.nodes[1].url)
         self.nodes[0].disconnectnode(url.hostname+":"+str(p2p_port(1)))
         time.sleep(2) #disconnecting a node needs a little bit of time
         for node in self.nodes[0].getpeerinfo():

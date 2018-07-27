@@ -81,7 +81,7 @@ class BIP66Test(ComparisonTestFramework):
 
         ''' 98 more version 2 blocks '''
         test_blocks = []
-        for i in xrange(98):
+        for i in range(98):
             block = create_block(self.tip, create_coinbase(height), self.last_block_time + 1)
             block.nVersion = 2
             block.rehash()
@@ -94,7 +94,7 @@ class BIP66Test(ComparisonTestFramework):
 
         ''' Mine 749 version 3 blocks '''
         test_blocks = []
-        for i in xrange(749):
+        for i in range(749):
             block = create_block(self.tip, create_coinbase(height), self.last_block_time + 1)
             block.nVersion = 3
             block.rehash()
@@ -146,7 +146,7 @@ class BIP66Test(ComparisonTestFramework):
 
         ''' Mine 199 new version blocks on last valid tip '''
         test_blocks = []
-        for i in xrange(199):
+        for i in range(199):
             block = create_block(self.tip, create_coinbase(height), self.last_block_time + 1)
             block.nVersion = 3
             block.rehash()

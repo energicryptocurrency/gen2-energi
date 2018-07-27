@@ -15,11 +15,11 @@ import binascii
 try:
     import http.client as httplib
 except ImportError:
-    import httplib
+    import http.client
 try:
     import urllib.parse as urlparse
 except ImportError:
-    import urlparse
+    import urllib.parse
 
 class ZMQTest (BitcoinTestFramework):
 
@@ -44,7 +44,7 @@ class ZMQTest (BitcoinTestFramework):
         genhashes = self.nodes[0].generate(1)
         self.sync_all()
 
-        print "listen..."
+        print("listen...")
         msg = self.zmqSubSocket.recv_multipart()
         topic = msg[0]
         body = msg[1]

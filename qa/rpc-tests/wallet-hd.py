@@ -12,7 +12,7 @@ from test_framework.util import *
 class WalletHDTest(BitcoinTestFramework):
 
     def setup_chain(self):
-        print("Initializing test directory "+self.options.tmpdir)
+        print(("Initializing test directory "+self.options.tmpdir))
         initialize_chain_clean(self.options.tmpdir, 2)
 
     def setup_network(self):

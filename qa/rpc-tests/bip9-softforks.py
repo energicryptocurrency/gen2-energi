@@ -64,7 +64,7 @@ class BIP9SoftForksTest(ComparisonTestFramework):
         return tx
 
     def generate_blocks(self, number, version, test_blocks = []):
-        for i in xrange(number):
+        for i in range(number):
             block = create_block(self.tip, create_coinbase(self.height), self.last_block_time + 1)
             block.nVersion = version
             block.rehash()
