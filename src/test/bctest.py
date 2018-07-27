@@ -34,6 +34,8 @@ def bctest(testDir, testObj, exeext):
 
 	if outputData and (outs[0] != outputData):
 		print("Output data mismatch for " + outputFn)
+		print(outs[0], "!=", outputData)
+		print('STDERR:' + outs[1])
 		sys.exit(1)
 
 	wantRC = 0
@@ -41,6 +43,7 @@ def bctest(testDir, testObj, exeext):
 		wantRC = testObj['return_code']
 	if proc.returncode != wantRC:
 		print("Return code mismatch for " + outputFn)
+		print('STDERR:' + outs[1])
 		sys.exit(1)
 
 def bctester(testDir, input_basename, buildenv):
