@@ -15,11 +15,11 @@ import binascii
 try:
     import http.client as httplib
 except ImportError:
-    import http.client
+    import httplib
 try:
     import urllib.parse as urlparse
 except ImportError:
-    import urllib.parse
+    import urlparse
 
 class ZMQTest (BitcoinTestFramework):
 

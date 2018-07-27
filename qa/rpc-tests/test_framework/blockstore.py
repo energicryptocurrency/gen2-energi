@@ -4,12 +4,15 @@
 #
 
 from .mininode import *
-import dbm.ndbm
+try:
+    import dbm.ndbm as dbm
+except ImportError:
+    import dbm
 from io import BytesIO
 
 class BlockStore(object):
     def __init__(self, datadir):
-        self.blockDB = dbm.ndbm.open(datadir + "/blocks", 'c')
+        self.blockDB = dbm.open(datadir + "/blocks", 'c')
         self.currentBlock = 0
         self.headers_map = dict()
     
@@ -105,7 +108,7 @@ class BlockStore(object):
 
 class TxStore(object):
     def __init__(self, datadir):
-        self.txDB = dbm.ndbm.open(datadir + "/transactions", 'c')
+        self.txDB = dbm.open(datadir + "/transactions", 'c')
 
     def close(self):
         self.txDB.close()

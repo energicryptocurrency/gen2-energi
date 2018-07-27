@@ -9,7 +9,8 @@ fi
 
 if which apt-get >/dev/null 2>&1; then
     deb_list=""
-    deb_list="python3-pip"
+    deb_list="${deb_list} python-pip python-setuptools python-dev"
+    deb_list="${deb_list} python3-pip python3-setuptools python3-dev"
     deb_list="${deb_list} build-essential g++ libtool autotools-dev automake bsdmainutils pkg-config"
     deb_list="${deb_list} autoconf autoconf2.13 autoconf2.59 autoconf2.64"
     deb_list="${deb_list} libssl-dev libevent-dev"
@@ -43,9 +44,15 @@ if which apt-get >/dev/null 2>&1; then
         sudo apt-get install --no-install-recommends -y ${deb_to_install}
     fi
     
-    echo 'import dash_hash' | python3 - >/dev/null 2>&1 || \
-        /usr/bin/pip3 install --user git+https://github.com/dashpay/dash_hash
-    /usr/bin/pip3 install --user pyzmq
+    pip_install() {
+        ( cd $srcdir && cte pip install "$@" )
+
+        /usr/bin/pip install --user "$@"
+    }
+
+    echo 'import dash_hash' | /usr/bin/env python - >/dev/null 2>&1 || \
+        pip_install git+https://github.com/dashpay/dash_hash
+    pip_install pyzmq
 fi
 
 autoreconf --install --force --warnings=all $srcdir

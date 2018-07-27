@@ -37,7 +37,7 @@
 try:
     import http.client as httplib
 except ImportError:
-    import http.client
+    import httplib
 import base64
 import decimal
 import json
@@ -45,7 +45,7 @@ import logging
 try:
     import urllib.parse as urlparse
 except ImportError:
-    import urllib.parse
+    import urlparse
 
 USER_AGENT = "AuthServiceProxy/0.1"
 
@@ -72,7 +72,7 @@ class AuthServiceProxy(object):
         self.__service_url = service_url
         self._service_name = service_name
         self.ensure_ascii = ensure_ascii # can be toggled on the fly by tests
-        self.__url = urllib.parse.urlparse(service_url)
+        self.__url = urlparse.urlparse(service_url)
         if self.__url.port is None:
             port = 80
         else:
@@ -93,10 +93,10 @@ class AuthServiceProxy(object):
             # Callables re-use the connection of the original proxy
             self.__conn = connection
         elif self.__url.scheme == 'https':
-            self.__conn = http.client.HTTPSConnection(self.__url.hostname, port,
+            self.__conn = httplib.HTTPSConnection(self.__url.hostname, port,
                                                   timeout=timeout)
         else:
-            self.__conn = http.client.HTTPConnection(self.__url.hostname, port,
+            self.__conn = httplib.HTTPConnection(self.__url.hostname, port,
                                                  timeout=timeout)
 
     def __getattr__(self, name):
@@ -119,7 +119,7 @@ class AuthServiceProxy(object):
         try:
             self.__conn.request(method, path, postdata, headers)
             return self._get_response()
-        except http.client.BadStatusLine as e:
+        except httplib.BadStatusLine as e:
             if e.line == "''": # if connection was closed, try again
                 self.__conn.close()
                 self.__conn.request(method, path, postdata, headers)

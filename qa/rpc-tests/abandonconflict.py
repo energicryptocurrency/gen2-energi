@@ -9,7 +9,7 @@ from test_framework.util import *
 try:
     import urllib.parse as urlparse
 except ImportError:
-    import urllib.parse
+    import urlparse
 
 class AbandonConflictTest(BitcoinTestFramework):
 
@@ -34,7 +34,7 @@ class AbandonConflictTest(BitcoinTestFramework):
         assert(balance - newbalance < Decimal("0.001")) #no more than fees lost
         balance = newbalance
 
-        url = urllib.parse.urlparse(self.nodes[1].url)
+        url = urlparse.urlparse(self.nodes[1].url)
         self.nodes[0].disconnectnode(url.hostname+":"+str(p2p_port(1)))
 
         # Identify the 10btc outputs

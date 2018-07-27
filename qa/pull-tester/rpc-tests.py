@@ -29,6 +29,9 @@ import subprocess
 import tempfile
 import re
 
+sys.path.append(os.path.realpath(
+        os.path.join(__file__, '..', '..', '..', 'build', 'qa', 'pull-tester')))
+
 from tests_config import *
 
 #If imported values are not defined then set to zero (or disabled)
@@ -62,6 +65,8 @@ for arg in sys.argv[1:]:
 
 #Set env vars
 buildDir = BUILDDIR
+sourceDir = SRCDIR
+
 if "EGID" not in os.environ:
     os.environ["EGID"] = buildDir + '/src/energid' + EXEEXT
 if "EGICLI" not in os.environ:
@@ -162,10 +167,11 @@ def runtests():
         coverage = RPCCoverage()
         print(("Initializing coverage directory at %s\n" % coverage.dir))
 
-    rpcTestDir = buildDir + '/qa/rpc-tests/'
+    rpcTestDir = sourceDir + '/qa/rpc-tests/'
     run_extended = '-extended' in opts
     cov_flag = coverage.flag if coverage else ''
-    flags = " --srcdir %s/src %s %s" % (buildDir, cov_flag, passOn)
+    flags = " --srcdir %s/src %s %s" % (sourceDir, cov_flag, passOn)
+    failed = False
 
     #Run Tests
     for i in range(len(testScripts)):

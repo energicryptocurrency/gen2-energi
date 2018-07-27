@@ -14,7 +14,10 @@ import re
 import os
 import os.path
 import base64
-import http.client
+try :
+    import http.client as httplib
+except ImportError:
+    import httplib
 import sys
 import hashlib
 import energi_hash

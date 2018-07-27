@@ -13,7 +13,10 @@ import json
 import struct
 import re
 import base64
-import http.client
+try :
+    import http.client as httplib
+except ImportError:
+    import httplib
 import sys
 
 settings = {}
@@ -22,7 +25,7 @@ class BitcoinRPC:
 	def __init__(self, host, port, username, password):
 		authpair = "%s:%s" % (username, password)
 		self.authhdr = "Basic %s" % (base64.b64encode(authpair))
-		self.conn = http.client.HTTPConnection(host, port, False, 30)
+		self.conn = httplib.HTTPConnection(host, port, False, 30)
 
 	def execute(self, obj):
 		self.conn.request('POST', '/', json.dumps(obj),
