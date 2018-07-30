@@ -63,6 +63,10 @@ for arg in sys.argv[1:]:
     else:
         opts.add(arg)
 
+if len(sys.argv) == 1:
+    print( 'NOTE: auto-enabling coverage for all test mode' )
+    ENABLE_COVERAGE = 1
+
 #Set env vars
 buildDir = BUILDDIR
 sourceDir = SRCDIR
