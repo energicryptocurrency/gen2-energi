@@ -22,6 +22,7 @@ if which apt-get >/dev/null 2>&1; then
     deb_list="${deb_list} libminiupnpc-dev libzmq3-dev"
     deb_list="${deb_list} libdb4.8-dev libdb4.8++-dev"
     deb_list="${deb_list} lcov default-jre-headless"
+    deb_list="${deb_list} ccache"
     
     deb_to_install=""
     for d in $deb_list; do
