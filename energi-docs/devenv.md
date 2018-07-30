@@ -49,15 +49,16 @@ get merged into a single configuration, etc.**
 
 Environment variables (direct usage is **DISCOURAGED**):
 
-* `ENERGI_BUILD_DIR=builds/release` - actual location of out-of-source-tree binary artifacts.
+* `ENERGI_BUILD_DIR=builds/$(hostname -s)-release` - actual location of out-of-source-tree binary artifacts.
+    - Hostname helps to allow builds both on Builder VM and on host system with shared folder.
 * `MAKEJOBS=$(nproc)` - number of parallel GNU make jobs.
 
-Extends commands (not part of standard prepare-build-check-package-promote flow):
+Extends commands (not part of standard CID prepare-build-check-package-promote flow):
 
 * Preparation variations:
-    * `cid run prepare-release` - same as with force environment config `cid prepare`.
+    * `cid run prepare-release` - same as plain `cid prepare` with forced environment config.
     * `cid run prepare-debug` - prepare a Debug configuration.
-    * `cid run prepare-coverage` - prepare a debug configuration with test coverage support.
+    * `cid run prepare-coverage` - prepare a Debug configuration with test coverage support.
 * Testing details:
     * `cid run check-make [-- <make opts>]` - executes test available through legacy `make check`.
     * `cid run check-rpc [-- <test opts>]` - executes test available through `qa/pull-tester/rpc-tests.py`.
@@ -74,11 +75,12 @@ and the least intrusive solution which should fit any Linux, Windows or macos ca
 
 Current Ubuntu LTS is selected as reference operating system for the VM.
 
-The working copy gets mounted under VM:/vagrant/ with bi-directional real-time synchronization
+The working copy gets mounted under `VM:/vagrant/` with bi-directional real-time synchronization
 using VirtualBox Guest Additions (vboxfs mount).
 
-Unlike common approach, the VM is headed (with GUI window). So, it should be possible to run
-`energi-qt` and other GUI apps on demand.
+Unlike common Vagrant approach, the VM is headed (has GUI window). So, it should be possible to run
+`energi-qt` and other GUI apps on demand. FluxBox, NoDM and pre-configured `$DISPLAY` is part of
+VM provisioning script.
 
 This VM approach is preferred also for security reasons.
 
