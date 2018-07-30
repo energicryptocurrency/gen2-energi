@@ -8,21 +8,21 @@
   },
   "actions": {
     "prepare": [
-      "mkdir -p build",
-      "cd build && ../autogen.sh",
-      "cd build && ../configure ${ENERGI_CONFIG_ALL}"
+      "mkdir -p ${ENERGI_BUILD_DIR:-build}",
+      "cd ${ENERGI_BUILD_DIR:-build} && ../autogen.sh",
+      "cd ${ENERGI_BUILD_DIR:-build} && ../configure ${ENERGI_CONFIG_ALL}"
     ],
     "prepare-release": "ENERGI_CONFIG_ALL='' cid prepare",
     "prepare-debug": "ENERGI_CONFIG_ALL='--enable-debug' cid prepare",
     "prepare-coverage": "ENERGI_CONFIG_ALL='--enable-debug --enable-lcov' LIBS='-lgcov' cid prepare",
     "build": [
-      "cte make -C build -j${MAKEJOBS:-$(nproc)}"
+      "cte make -C ${ENERGI_BUILD_DIR:-build} -j${MAKEJOBS:-$(nproc)}"
     ],
     "check": [
       "check-make",
       "check-rpc"
     ],
-    "check-make": "cte make -C build -j${MAKEJOBS:-$(nproc)} check",
-    "check-rpc": "cte python qa/pull-tester/rpc-tests.py --coverage"
+    "check-make": "cte make -C ${ENERGI_BUILD_DIR:-build} check",
+    "check-rpc": "cte python qa/pull-tester/rpc-tests.py"
   }
 }
