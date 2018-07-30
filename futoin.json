@@ -8,13 +8,14 @@
   },
   "actions": {
     "prepare": [
-      "mkdir -p ${ENERGI_BUILD_DIR:-build}",
-      "cd ${ENERGI_BUILD_DIR:-build} && ../autogen.sh",
-      "cd ${ENERGI_BUILD_DIR:-build} && ../configure ${ENERGI_CONFIG_ALL}"
+      "mkdir -p ${ENERGI_BUILD_DIR:-builds/release}",
+      "src=$(pwd); cd ${ENERGI_BUILD_DIR:-builds/release} && $src/autogen.sh",
+      "src=$(pwd); cd ${ENERGI_BUILD_DIR:-builds/release} && $src/configure ${ENERGI_CONFIG_ALL}",
+      "rm -rf build && ln -sfn ${ENERGI_BUILD_DIR:-builds/release} build"
     ],
-    "prepare-release": "ENERGI_CONFIG_ALL='' cid prepare",
-    "prepare-debug": "ENERGI_CONFIG_ALL='--enable-debug' cid prepare",
-    "prepare-coverage": "ENERGI_CONFIG_ALL='--enable-debug --enable-lcov' LIBS='-lgcov' cid prepare",
+    "prepare-release": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-builds/release} ENERGI_CONFIG_ALL='' cid prepare",
+    "prepare-debug": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-builds/debug} ENERGI_CONFIG_ALL='--enable-debug' cid prepare",
+    "prepare-coverage": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-builds/coverage} ENERGI_CONFIG_ALL='--enable-debug --enable-lcov' LIBS='-lgcov' cid prepare",
     "build": [
       "cte make -C ${ENERGI_BUILD_DIR:-build} -j${MAKEJOBS:-$(nproc)}"
     ],
@@ -23,6 +24,9 @@
       "check-rpc"
     ],
     "check-make": "cte make -C ${ENERGI_BUILD_DIR:-build} check",
-    "check-rpc": "cte python qa/pull-tester/rpc-tests.py"
+    "check-rpc": "cte python qa/pull-tester/rpc-tests.py",
+    "energid" : "${ENERGI_BUILD_DIR:-build}/src/energid",
+    "energi-cli" : "${ENERGI_BUILD_DIR:-build}/src/energi-cli",
+    "energi-qt" : "${ENERGI_BUILD_DIR:-build}/src/qt/energi-qt"
   }
 }

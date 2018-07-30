@@ -1,3 +1,9 @@
+DEPRECATED
+==========
+
+This manual is deprecated, please see consistent development environment
+instructions in [energi-docs/devenv.md](../energi-docs/devenv.md).
+
 Mac OS X Build Instructions and Notes
 ====================================
 This guide will show you how to build the Energi Core wallet for MacOS.
