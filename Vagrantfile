@@ -30,10 +30,13 @@ Vagrant.configure("2") do |config|
             "sudo -H -u vagrant git config --global user.email '#{`git config --global user.email`}'"
 
         node.vm.provision 'xorg', type: "shell", inline:\
-            "apt-get install -y --no-install-recommends xorg;"\
+            "echo 'nodm    nodm/enabled    boolean true' | debconf-set-selections;"\
+            "apt-get install -y --no-install-recommends xorg fluxbox nodm;"
         
-        node.vm.provision 'start-dir', type: "shell", inline:\
-            "grep -q 'cd /vagrant' /home/vagrant/.bashrc || (echo 'cd /vagrant' >> /home/vagrant/.bashrc )"
+        node.vm.provision 'bashrc', type: "shell", inline:\
+            "ensure_bashrc() { grep -q \"$@\" /home/vagrant/.bashrc || (echo \"$@\" >> /home/vagrant/.bashrc )};"\
+            "ensure_bashrc 'cd /vagrant';"\
+            "ensure_bashrc  'export DISPLAY=\":0\"';"
         
         node.vm.synced_folder(".", "/vagrant",
             type: 'virtualbox',

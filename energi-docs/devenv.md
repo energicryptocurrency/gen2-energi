@@ -77,9 +77,10 @@ Current Ubuntu LTS is selected as reference operating system for the VM.
 The working copy gets mounted under VM:/vagrant/ with bi-directional real-time synchronization
 using VirtualBox Guest Additions (vboxfs mount).
 
-By default, the VM is headless. It's possible to setup Xorg and window manager to render GUI of `energi-qt`.
+Unlike common approach, the VM is headed (with GUI window). So, it should be possible to run
+`energi-qt` and other GUI apps on demand.
 
-This approach is preferred also for security reasons.
+This VM approach is preferred also for security reasons.
 
 ### Vagrant hints:
 
