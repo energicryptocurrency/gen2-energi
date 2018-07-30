@@ -12,7 +12,7 @@ if which apt-get >/dev/null 2>&1; then
     deb_list="${deb_list} python-pip python-setuptools python-dev"
     deb_list="${deb_list} python3-pip python3-setuptools python3-dev"
     deb_list="${deb_list} build-essential g++ libtool autotools-dev automake bsdmainutils pkg-config"
-    deb_list="${deb_list} autoconf autoconf2.13 autoconf2.59 autoconf2.64"
+    deb_list="${deb_list} autoconf autoconf2.*"
     deb_list="${deb_list} libssl-dev libevent-dev"
     deb_list="${deb_list} libboost-system-dev libboost-filesystem-dev libboost-chrono-dev"
     deb_list="${deb_list} libboost-program-options-dev libboost-test-dev libboost-thread-dev"

@@ -8,8 +8,9 @@ Vagrant.configure("2") do |config|
             # "safe" defaults for any modern developer's system
             v.memory = ENV.fetch('VM_MEMORY', 4096)
             v.cpus = ENV.fetch('VM_CPUS', 4)
+            v.gui = true
         end
-        node.vm.box = "bento/ubuntu-16.04"
+        node.vm.box = "bento/ubuntu-18.04"
 
         #node.vm.network "forwarded_port", guest: 19999, host: 19999, host_ip: "127.0.0.1"
         #node.vm.network "forwarded_port", guest: 9999, host: 9999, host_ip: "127.0.0.1"
@@ -22,6 +23,17 @@ Vagrant.configure("2") do |config|
         node.vm.provision 'cid', type: "shell", inline:\
             "apt-get install -y python3-pip;"\
             "/usr/bin/pip3 install -U futoin-cid"
+
+        node.vm.provision 'git', type: "shell", inline:\
+            "apt-get install -y --no-install-recommends git;"\
+            "sudo -H -u vagrant git config --global user.name '#{`git config --global user.name`}';"\
+            "sudo -H -u vagrant git config --global user.email '#{`git config --global user.email`}'"
+
+        node.vm.provision 'xorg', type: "shell", inline:\
+            "apt-get install -y --no-install-recommends xorg;"\
+        
+        node.vm.provision 'start-dir', type: "shell", inline:\
+            "grep -q 'cd /vagrant' /home/vagrant/.bashrc || (echo 'cd /vagrant' >> /home/vagrant/.bashrc )"
         
         node.vm.synced_folder(".", "/vagrant",
             type: 'virtualbox',
