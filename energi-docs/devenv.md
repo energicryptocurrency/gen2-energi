@@ -87,3 +87,30 @@ This VM approach is preferred also for security reasons.
 * `vagrant up` - get `builder` box running.
 * `vagrant ssh builder` - SSH into the box.
 * `cid ...` - run usual commands
+
+## Other questions
+
+### Host OS
+
+Vagrant approach should fit almost any host OS. However, development without OS requires
+the latest Ubuntu LTS compatible OS. For example, Debian is assumed to be supported.
+
+### Integrated Development Environment
+
+Any developer is free to use own favorite IDE as far as all build process is based on
+the process listed above. There is no intention to enforce any specific IDE.
+
+### Toolchain
+
+Both C++11 compliant GCC and Clang toolchain has to be supported. Specific toolchain and
+its version selection has to be hidden inside this development environment details.
+
+### External dependencies
+
+So far, most dependencies are installed using system packages. This may change
+at some point.
+
+### Build optimizations
+
+`ccache` is automatically installed to be used by build system. We may want to integrate `distcc`,
+if there is a valid case in Core development team and/or reference development environment.
