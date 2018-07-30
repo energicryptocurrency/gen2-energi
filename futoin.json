@@ -4,14 +4,15 @@
   "vcs": "git",
   "tools": {
     "make": "*",
+    "cmake": "*",
     "python": "3"
   },
   "actions": {
     "prepare": [
-      "mkdir -p ${ENERGI_BUILD_DIR:-builds/release}",
-      "src=$(pwd); cd ${ENERGI_BUILD_DIR:-builds/release} && $src/autogen.sh",
-      "src=$(pwd); cd ${ENERGI_BUILD_DIR:-builds/release} && $src/configure ${ENERGI_CONFIG_ALL}",
-      "rm -rf build && ln -sfn ${ENERGI_BUILD_DIR:-builds/release} build"
+      "cte cmake -E make_directory ${ENERGI_BUILD_DIR:-builds/$(hostname -s)-release}",
+      "cte cmake -E chdir ${ENERGI_BUILD_DIR:-builds/$(hostname -s)-release} $(pwd)/autogen.sh",
+      "cte cmake -E chdir ${ENERGI_BUILD_DIR:-builds/$(hostname -s)-release} $(pwd)/configure ${ENERGI_CONFIG_ALL}",
+      "cte cmake -E create_symlink ${ENERGI_BUILD_DIR:-builds/$(hostname -s)-release} build"
     ],
     "prepare-release": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-builds/release} ENERGI_CONFIG_ALL='' cid prepare",
     "prepare-debug": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-builds/debug} ENERGI_CONFIG_ALL='--enable-debug' cid prepare",
