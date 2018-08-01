@@ -76,7 +76,8 @@ and the least intrusive solution which should fit any Linux, Windows or macos ca
 Current Ubuntu LTS is selected as reference operating system for the VM.
 
 The working copy gets mounted under `VM:/vagrant/` with bi-directional real-time synchronization
-using VirtualBox Guest Additions (vboxfs mount).
+using VirtualBox Guest Additions (vboxfs mount). Additionally, `/home/vagrant/.energicore` is
+separately mounted, see hints below.
 
 Unlike common Vagrant approach, the VM is headed (has GUI window). So, it should be possible to run
 `energi-qt` and other GUI apps on demand. FluxBox, NoDM and pre-configured `$DISPLAY` is part of
@@ -89,6 +90,10 @@ This VM approach is preferred also for security reasons.
 * `vagrant up` - get `builder` box running.
 * `vagrant ssh builder` - SSH into the box.
 * `cid ...` - run usual commands
+* `VM_ENERGICORE_DATA=$(dirname Vagranfile)/../energicore_test_data) -> /home/vagrant/.energicore`
+    - this folder is automatically mounted.
+* `port 19796 is forwarded to host system`
+    - allow running EnergiMiner
 
 ## Other questions
 

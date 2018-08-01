@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
         end
         node.vm.box = "bento/ubuntu-18.04"
 
-        #node.vm.network "forwarded_port", guest: 19999, host: 19999, host_ip: "127.0.0.1"
+        node.vm.network "forwarded_port", guest: 19796, host: 19796, host_ip: "127.0.0.1"
         #node.vm.network "forwarded_port", guest: 9999, host: 9999, host_ip: "127.0.0.1"
 
         node.vm.provision 'libdb4', type: "shell", inline:\
@@ -39,6 +39,15 @@ Vagrant.configure("2") do |config|
             "ensure_bashrc  'export DISPLAY=\":0\"';"
         
         node.vm.synced_folder(".", "/vagrant",
+            type: 'virtualbox',
+            owner: 'vagrant', group: 'vagrant',
+            create: true
+        )
+        
+        VM_ENERGICORE_DATA = ENV.fetch('VM_ENERGICORE_DATA', '../energicore_vagrant_data')
+        FileUtils.mkdir_p VM_ENERGICORE_DATA
+
+        node.vm.synced_folder(VM_ENERGICORE_DATA, "/home/vagrant/.energicore",
             type: 'virtualbox',
             owner: 'vagrant', group: 'vagrant',
             create: true
