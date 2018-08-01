@@ -45,7 +45,7 @@ elif which apt-get >/dev/null 2>&1; then
     if [ -n "${deb_to_install}" ]; then
         echo "Auto-trying to install Debian/Ubuntu deps"
         set -x
-        sudo -n apt-get install --no-install-recommends -y ${deb_to_install}
+        sudo -n /usr/bin/apt-get install --no-install-recommends -y ${deb_to_install}
         set +x
     fi
     
