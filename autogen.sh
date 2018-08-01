@@ -7,7 +7,9 @@ if [ -z ${LIBTOOLIZE} ] && GLIBTOOLIZE="`which glibtoolize 2>/dev/null`"; then
   export LIBTOOLIZE
 fi
 
-if which apt-get >/dev/null 2>&1; then
+if [ "${SKIP_AUTO_DEPS}" = "true" ]; then
+    :
+elif which apt-get >/dev/null 2>&1; then
     deb_list=""
     deb_list="${deb_list} python-pip python-setuptools python-dev"
     deb_list="${deb_list} python3-pip python3-setuptools python3-dev"
@@ -42,11 +44,13 @@ if which apt-get >/dev/null 2>&1; then
     
     if [ -n "${deb_to_install}" ]; then
         echo "Auto-trying to install Debian/Ubuntu deps"
-        sudo apt-get install --no-install-recommends -y ${deb_to_install}
+        set -x
+        sudo -n apt-get install --no-install-recommends -y ${deb_to_install}
+        set +x
     fi
     
     pip_install() {
-        ( cd $srcdir && cte pip install "$@" )
+        ( which futoin-cid && cd $srcdir && cte pip install "$@" )
 
         /usr/bin/pip install --user "$@"
     }
