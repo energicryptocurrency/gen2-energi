@@ -140,6 +140,7 @@ qa/pull-tester/test.*/*
 qa/tmp
 cache/
 share/BitcoindComparisonTool.jar
+test_results/
 
 !src/leveldb*/Makefile
 
