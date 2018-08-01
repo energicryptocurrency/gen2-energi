@@ -8,26 +8,37 @@
     "python": "3"
   },
   "actions": {
+    "clean" : "cte git clean -fdx .",
     "prepare": [
-      "cte cmake -E make_directory ${ENERGI_BUILD_DIR:-builds/$(hostname -s)-release}",
-      "cte cmake -E chdir ${ENERGI_BUILD_DIR:-builds/$(hostname -s)-release} $(pwd)/autogen.sh",
-      "cte cmake -E chdir ${ENERGI_BUILD_DIR:-builds/$(hostname -s)-release} $(pwd)/configure ${ENERGI_CONFIG_ALL}",
-      "cte cmake -E create_symlink ${ENERGI_BUILD_DIR:-builds/$(hostname -s)-release} build"
+      "cte cmake -E make_directory ${ENERGI_BUILD_DIR:-build/$(hostname -s)-release}",
+      "cte cmake -E create_symlink ${ENERGI_BUILD_DIR:-$(pwd)/build/$(hostname -s)-release} build/current",
+      "cte cmake -E chdir build/current $(pwd)/autogen.sh",
+      "cte cmake -E chdir build/current $(pwd)/configure CFLAGS='-Wall' CXXFLAGS='-Wall' ${ENERGI_CONFIG_ALL}"
     ],
-    "prepare-release": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-builds/release} ENERGI_CONFIG_ALL='' cid prepare",
-    "prepare-debug": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-builds/debug} ENERGI_CONFIG_ALL='--enable-debug' cid prepare",
-    "prepare-coverage": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-builds/coverage} ENERGI_CONFIG_ALL='--enable-debug --enable-lcov' LIBS='-lgcov' cid prepare",
+    "prepare-release": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-build/$(hostname -s)-release} ENERGI_CONFIG_ALL='' cid prepare",
+    "prepare-debug": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-build/$(hostname -s)-debug} ENERGI_CONFIG_ALL='--enable-debug' cid prepare",
+    "prepare-coverage": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-build/$(hostname -s)-coverage} ENERGI_CONFIG_ALL='--enable-debug --enable-lcov' LIBS='-lgcov' cid prepare",
     "build": [
-      "cte make -C ${ENERGI_BUILD_DIR:-build} -j${MAKEJOBS:-$(nproc)}"
+      "cte make -C ${ENERGI_BUILD_DIR:-build/current} -j${MAKEJOBS:-$(nproc)}"
     ],
-    "check": [
-      "check-make",
+    "check" : [
+        "check-cpp"
+    ],
+    "check-all": [
+      "check-cpp",
       "check-rpc"
     ],
-    "check-make": "cte make -C ${ENERGI_BUILD_DIR:-build} check",
+    "check-make": "cte make -C ${ENERGI_BUILD_DIR:-build/current} check",
+    "check-cpp": [
+        "./build/current/src/test_energi --log_format=xml --log_level=warning --log_sink=./test_results/results.xml --report_format=xml --report_level=detailed --report_sink=./test_results/report.xml --result_code=no",
+        "./build/current/src/qt/test_energi-qt -xml -o ./test_results/test_energi-qt.xml"
+    ],
     "check-rpc": "cte python qa/pull-tester/rpc-tests.py",
-    "energid" : "${ENERGI_BUILD_DIR:-build}/src/energid",
-    "energi-cli" : "${ENERGI_BUILD_DIR:-build}/src/energi-cli",
-    "energi-qt" : "${ENERGI_BUILD_DIR:-build}/src/qt/energi-qt"
+    "package" : [
+        "cte tar cvzf build/$(readlink build/current).tar.gz build/$(readlink build/current)"
+    ],
+    "energid" : "build/current/src/energid",
+    "energi-cli" : "build/current/src/energi-cli",
+    "energi-qt" : "build/current/src/qt/energi-qt"
   }
 }

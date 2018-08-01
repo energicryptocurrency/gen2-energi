@@ -37,8 +37,8 @@ Commands:
 
 Paths relative to project root:
 
-* `build/` - a **symlink** to current active build.
-* `builds/{type}` - actual location of builds with specific configuration.
+* `build/current` - a **symlink** to current active build.
+* `build/{version-or-type}` - actual location of builds with specific configuration.
 * `futoin.json` - a single place to configure FutoIn CID
 * The rest is project source. All other build files may change or disappear over time.
 
@@ -49,7 +49,7 @@ get merged into a single configuration, etc.**
 
 Environment variables (direct usage is **DISCOURAGED**):
 
-* `ENERGI_BUILD_DIR=builds/$(hostname -s)-release` - actual location of out-of-source-tree binary artifacts.
+* `ENERGI_BUILD_DIR=build/$(hostname -s)-release` - actual location of out-of-source-tree binary artifacts.
     - Hostname helps to allow builds both on Builder VM and on host system with shared folder.
 * `MAKEJOBS=$(nproc)` - number of parallel GNU make jobs.
 
@@ -121,3 +121,8 @@ at some point.
 
 `ccache` is automatically installed to be used by build system. We may want to integrate `distcc`,
 if there is a valid case in Core development team and/or reference development environment.
+
+### Blockchain data on VM
+
+For efficiency and reduced network load, the VM is designed to keep ~/.energicore data on
+host system. However, the standard host system path for wallet data is not synced for security reasons.
