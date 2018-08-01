@@ -36,7 +36,7 @@
     ],
     "check-rpc": "cte python qa/pull-tester/rpc-tests.py",
     "package" : [
-        "cte tar cvzf build/$(readlink build/current).tar.gz build/$(readlink build/current)"
+        "cd build; b=$(basename $(readlink current)); cte tar cvzf $b.tar.gz $b"
     ],
     "energid" : "build/current/src/energid",
     "energi-cli" : "build/current/src/energi-cli",
