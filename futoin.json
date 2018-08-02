@@ -13,7 +13,7 @@
       "cte cmake -E make_directory ${ENERGI_BUILD_DIR:-build/$(hostname -s)-release}",
       "cte cmake -E create_symlink ${ENERGI_BUILD_DIR:-$(pwd)/build/$(hostname -s)-release} build/current",
       "cte cmake -E chdir build/current $(pwd)/autogen.sh",
-      "cte cmake -E chdir build/current $(pwd)/configure CFLAGS='-Wall' CXXFLAGS='-Wall' ${ENERGI_CONFIG_ALL}"
+      "cte cmake -E chdir build/current $(pwd)/configure CFLAGS='-Wall' CXXFLAGS='-Wall' --prefix=$(pwd)/build/${ENERGI_VER:-energi} ${ENERGI_CONFIG_ALL}"
     ],
     "prepare-release": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-build/$(hostname -s)-release} ENERGI_CONFIG_ALL='' cid prepare",
     "prepare-debug": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-build/$(hostname -s)-debug} ENERGI_CONFIG_ALL='--enable-debug' cid prepare",
@@ -36,7 +36,8 @@
     ],
     "check-rpc": "cte python qa/pull-tester/rpc-tests.py",
     "package" : [
-        "cd build; b=$(basename $(readlink current)); cte tar cvzf $b.tar.gz $b"
+        "cte make -C ${ENERGI_BUILD_DIR:-build/current} install",
+        "cte cmake -E chdir build cte tar cvzf ${ENERGI_VER:-energi}.tar.gz ${ENERGI_VER:-energi}"
     ],
     "energid" : "build/current/src/energid",
     "energi-cli" : "build/current/src/energi-cli",
