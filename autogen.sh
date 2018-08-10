@@ -26,6 +26,10 @@ elif which apt-get >/dev/null 2>&1; then
     deb_list="${deb_list} lcov default-jre-headless"
     deb_list="${deb_list} ccache"
     
+    if [ "$TARGET" = "x86_64-w64-mingw32" ]; then
+        deb_list="${deb_list} mingw-w64 wine64 wine-binfmt"
+    fi
+    
     deb_to_install=""
     for d in $deb_list; do
         if ! dpkg -s $d >/dev/null 2>&1; then
@@ -61,3 +65,9 @@ elif which apt-get >/dev/null 2>&1; then
 fi
 
 autoreconf --install --force --warnings=all $srcdir
+
+if [ "$TARGET" = "x86_64-w64-mingw32" ]; then
+    echo "Preparing Win64 deps"
+    make -C $srcdir/depends HOST=x86_64-w64-mingw32 -j${MAKEJOBS:-$(nproc)}
+fi
+
