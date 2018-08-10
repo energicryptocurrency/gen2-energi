@@ -12,7 +12,7 @@
 Functionality to build scripts, as well as SignatureHash().
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 from .mininode import CTransaction, CTxOut, hash256
 from binascii import hexlify
@@ -658,7 +658,7 @@ class CScript(bytes):
                 other = bchr(CScriptOp(OP_0))
             else:
                 other = CScriptNum.encode(other)
-        elif isinstance(other, (int, long)):
+        elif isinstance(other, int):
             if 0 <= other <= 16:
                 other = bytes(bchr(CScriptOp.encode_op_n(other)))
             elif other == -1:

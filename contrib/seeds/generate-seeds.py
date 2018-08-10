@@ -31,7 +31,7 @@ The output will be two data structures with the peers in binary format:
 
 These should be pasted into `src/chainparamsseeds.h`.
 '''
-from __future__ import print_function, division
+
 from base64 import b32decode
 from binascii import a2b_hex
 import sys, os

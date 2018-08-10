@@ -1,0 +1,46 @@
+{
+  "name": "energi",
+  "version": "1.1.0",
+  "vcs": "git",
+  "tools": {
+    "make": "*",
+    "cmake": "*",
+    "python": "3"
+  },
+  "actions": {
+    "clean" : "cte git clean -ffdX . || true",
+    "prepare": [
+      "cte cmake -E make_directory ${ENERGI_BUILD_DIR:-build/$(hostname -s)-release}",
+      "cte cmake -E create_symlink ${ENERGI_BUILD_DIR:-$(pwd)/build/$(hostname -s)-release} build/current",
+      "cte cmake -E chdir build/current $(pwd)/autogen.sh",
+      "cte cmake -E chdir build/current $(pwd)/configure CFLAGS='-Wall' CXXFLAGS='-Wall' --prefix=$(pwd)/build/${ENERGI_VER:-energi} ${ENERGI_CONFIG_ALL}"
+    ],
+    "prepare-release": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-build/$(hostname -s)-release} ENERGI_CONFIG_ALL='' cid prepare",
+    "prepare-debug": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-build/$(hostname -s)-debug} ENERGI_CONFIG_ALL='--enable-debug' cid prepare",
+    "prepare-coverage": "ENERGI_BUILD_DIR=${ENERGI_BUILD_DIR:-build/$(hostname -s)-coverage} ENERGI_CONFIG_ALL='--enable-debug --enable-lcov' LIBS='-lgcov' cid prepare",
+    "build": [
+      "cte make -C ${ENERGI_BUILD_DIR:-build/current} -j${MAKEJOBS:-$(nproc)}"
+    ],
+    "check" : [
+        "check-cpp"
+    ],
+    "check-all": [
+      "check-cpp",
+      "check-rpc"
+    ],
+    "check-make": "cte make -C ${ENERGI_BUILD_DIR:-build/current} check",
+    "check-cpp": [
+        "cte cmake -E make_directory ./test_results",
+        "./build/current/src/test/test_energi --log_format=XML --log_level=warning --log_sink=./test_results/results.xml --report_format=XML --report_level=detailed --report_sink=./test_results/report.xml --result_code=no",
+        "./build/current/src/qt/test/test_energi-qt -xml -o ./test_results/test_energi-qt.xml"
+    ],
+    "check-rpc": "cte python qa/pull-tester/rpc-tests.py",
+    "package" : [
+        "cte make -C ${ENERGI_BUILD_DIR:-build/current} install",
+        "cte cmake -E chdir build cte tar cvzf ${ENERGI_VER:-energi}.tar.gz ${ENERGI_VER:-energi}"
+    ],
+    "energid" : "build/current/src/energid",
+    "energi-cli" : "build/current/src/energi-cli",
+    "energi-qt" : "build/current/src/qt/energi-qt"
+  }
+}

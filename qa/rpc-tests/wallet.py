@@ -22,7 +22,7 @@ class WalletTest (BitcoinTestFramework):
         return curr_balance
 
     def setup_chain(self):
-        print("Initializing test directory "+self.options.tmpdir)
+        print(("Initializing test directory "+self.options.tmpdir))
         initialize_chain_clean(self.options.tmpdir, 4)
 
     def setup_network(self, split=False):
@@ -40,7 +40,7 @@ class WalletTest (BitcoinTestFramework):
         assert_equal(len(self.nodes[1].listunspent()), 0)
         assert_equal(len(self.nodes[2].listunspent()), 0)
 
-        print "Mining blocks..."
+        print("Mining blocks...")
 
         self.nodes[0].generate(1)
 
@@ -313,11 +313,11 @@ class WalletTest (BitcoinTestFramework):
         for mode in [True, False]:
             self.nodes[0].ensure_ascii = mode
             # unicode check: Basic Multilingual Plane, Supplementary Plane respectively
-            for s in [u'рыба', u'𝅘𝅥𝅯']:
+            for s in ['рыба', '𝅘𝅥𝅯']:
                 addr = self.nodes[0].getaccountaddress(s)
                 label = self.nodes[0].getaccount(addr)
                 assert_equal(label.encode('utf-8'), s.encode('utf-8')) # TODO remove encode(...) when supporting only Python3
-                assert(s in self.nodes[0].listaccounts().keys())
+                assert(s in list(self.nodes[0].listaccounts().keys()))
         self.nodes[0].ensure_ascii = True # restore to default
 
         # maintenance tests
@@ -329,7 +329,7 @@ class WalletTest (BitcoinTestFramework):
             '-salvagewallet',
         ]
         for m in maintenance:
-            print "check " + m
+            print("check " + m)
             stop_nodes(self.nodes)
             wait_bitcoinds()
             self.nodes = start_nodes(3, self.options.tmpdir, [[m]] * 3)

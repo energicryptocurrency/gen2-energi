@@ -5,7 +5,7 @@ Exit status will be 0 if succesful, and the program will be silent.
 Otherwise the exit status will be 1 and it will log which executables failed which checks.
 Needs `readelf` (for ELF) and `objdump` (for PE).
 '''
-from __future__ import division,print_function
+
 import subprocess
 import sys
 import os

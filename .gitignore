@@ -113,9 +113,12 @@ src/test/buildenv.py
 # Resources cpp
 qrc_*.cpp
 
+# Builds
+build
+builds/
+
 # Mac specific
 .DS_Store
-build
 
 #lcov
 *.gcno
@@ -137,6 +140,7 @@ qa/pull-tester/test.*/*
 qa/tmp
 cache/
 share/BitcoindComparisonTool.jar
+test_results/
 
 !src/leveldb*/Makefile
 
@@ -155,3 +159,7 @@ dash-cli
 dashd
 dash-qt
 make
+
+# Development VM
+/.vagrant/
+

@@ -21,7 +21,7 @@ class MempoolLimitTest(BitcoinTestFramework):
         self.relayfee = self.nodes[0].getnetworkinfo()['relayfee']
 
     def setup_chain(self):
-        print("Initializing test directory "+self.options.tmpdir)
+        print(("Initializing test directory "+self.options.tmpdir))
         initialize_chain_clean(self.options.tmpdir, 2)
 
     def run_test(self):
@@ -41,7 +41,7 @@ class MempoolLimitTest(BitcoinTestFramework):
 
         relayfee = self.nodes[0].getnetworkinfo()['relayfee']
         base_fee = relayfee*100
-        for i in xrange (4):
+        for i in range (4):
             txids.append([])
             txids[i] = create_lots_of_big_transactions(self.nodes[0], self.txouts, utxos[30*i:30*i+30], (i+1)*base_fee)
 

@@ -25,7 +25,7 @@ class HTTPBasicsTest (BitcoinTestFramework):
         return start_nodes(4, self.options.tmpdir)
 
     def setup_chain(self):
-        print("Initializing test directory "+self.options.tmpdir)
+        print(("Initializing test directory "+self.options.tmpdir))
         initialize_chain(self.options.tmpdir)
         #Append rpcauth to energi.conf before initialization
         rpcauth = "rpcauth=rt:93648e835a54c573682c2eb19f882535$7681e9c5b74bdd85e78166031d2058e1069b3ed7ed967c93fc63abba06f31144"
@@ -39,7 +39,7 @@ class HTTPBasicsTest (BitcoinTestFramework):
         ##################################################
         # Check correctness of the rpcauth config option #
         ##################################################
-        url = urlparse.urlparse(self.nodes[0].url)
+        url = urllib.parse.urlparse(self.nodes[0].url)
 
         #Old authpair
         authpair = url.username + ':' + url.password

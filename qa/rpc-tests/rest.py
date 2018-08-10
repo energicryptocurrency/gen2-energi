@@ -55,7 +55,7 @@ class RESTTest (BitcoinTestFramework):
     FORMAT_SEPARATOR = "."
 
     def setup_chain(self):
-        print("Initializing test directory "+self.options.tmpdir)
+        print(("Initializing test directory "+self.options.tmpdir))
         initialize_chain_clean(self.options.tmpdir, 3)
 
     def setup_network(self, split=False):
@@ -68,7 +68,7 @@ class RESTTest (BitcoinTestFramework):
 
     def run_test(self):
         url = urlparse.urlparse(self.nodes[0].url)
-        print "Mining blocks..."
+        print("Mining blocks...")
 
         self.nodes[0].generate(1)
         self.sync_all()

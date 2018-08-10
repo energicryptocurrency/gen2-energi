@@ -15,7 +15,7 @@ It will do the following automatically:
 TODO:
 - auto-add new translations to the build system according to the translation process
 '''
-from __future__ import division, print_function
+
 import subprocess
 import re
 import sys

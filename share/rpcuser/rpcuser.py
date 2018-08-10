@@ -37,5 +37,5 @@ m = hmac.new(bytearray(salt, 'utf-8'), bytearray(password, 'utf-8'), digestmod)
 result = m.hexdigest()
 
 print("String to be appended to bitcoin.conf:")
-print("rpcauth="+username+":"+salt+"$"+result)
-print("Your password:\n"+password)
+print(("rpcauth="+username+":"+salt+"$"+result))
+print(("Your password:\n"+password))

@@ -8,12 +8,15 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #
 
-from __future__ import print_function
+
 import json
 import struct
 import re
 import base64
-import httplib
+try :
+    import http.client as httplib
+except ImportError:
+    import httplib
 import sys
 
 settings = {}

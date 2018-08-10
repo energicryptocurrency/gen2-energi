@@ -66,7 +66,7 @@ class KeyPoolTest(BitcoinTestFramework):
             assert(e.error['code']==-12)
 
     def setup_chain(self):
-        print("Initializing test directory "+self.options.tmpdir)
+        print(("Initializing test directory "+self.options.tmpdir))
         initialize_chain_clean(self.options.tmpdir, 1)
 
     def setup_network(self):

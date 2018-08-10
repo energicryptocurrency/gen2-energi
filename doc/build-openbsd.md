@@ -1,3 +1,9 @@
+DEPRECATED
+==========
+
+This manual is deprecated, please see consistent development environment
+instructions in [energi-docs/devenv.md](../energi-docs/devenv.md).
+
 OpenBSD build guide
 ======================
 (updated for OpenBSD 5.7)

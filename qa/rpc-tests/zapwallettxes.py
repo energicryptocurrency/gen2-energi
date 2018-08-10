@@ -10,7 +10,7 @@ from test_framework.util import *
 class ZapWalletTXesTest (BitcoinTestFramework):
 
     def setup_chain(self):
-        print("Initializing test directory "+self.options.tmpdir)
+        print(("Initializing test directory "+self.options.tmpdir))
         initialize_chain_clean(self.options.tmpdir, 3)
 
     def setup_network(self, split=False):
@@ -22,7 +22,7 @@ class ZapWalletTXesTest (BitcoinTestFramework):
         self.sync_all()
 
     def run_test (self):
-        print "Mining blocks..."
+        print("Mining blocks...")
         self.nodes[0].generate(1)
         self.sync_all()
         self.nodes[1].generate(101)

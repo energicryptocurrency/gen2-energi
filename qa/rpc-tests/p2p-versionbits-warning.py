@@ -82,7 +82,7 @@ class VersionBitsWarningTest(BitcoinTestFramework):
         block_time = self.nodes[0].getblockheader(tip)["time"]+1
         tip = int(tip, 16)
 
-        for i in xrange(numblocks):
+        for i in range(numblocks):
             block = create_block(tip, create_coinbase(height+1), block_time)
             block.nVersion = nVersionToUse
             block.solve()

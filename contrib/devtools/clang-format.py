@@ -20,11 +20,11 @@ def check_clang_format_version(clang_format_exe):
         output = subprocess.check_output([clang_format_exe, '-version'])
         for ver in tested_versions:
             if ver in output:
-                print "Detected clang-format version " + ver
+                print("Detected clang-format version " + ver)
                 return
         raise RuntimeError("Untested version: " + output)
     except Exception as e:
-        print 'Could not verify version of ' + clang_format_exe + '.'
+        print('Could not verify version of ' + clang_format_exe + '.')
         raise e
 
 def check_command_line_args(argv):
@@ -33,11 +33,11 @@ def check_command_line_args(argv):
 
     if(len(argv) < len(required_args) + 1):
         for word in (['Usage:', argv[0]] + required_args):
-            print word,
-        print ''
+            print(word, end=' ')
+        print('')
         for word in (['E.g:', argv[0]] + example_args):
-            print word,
-        print ''
+            print(word, end=' ')
+        print('')
         sys.exit(1)
 
 def run_clang_format(clang_format_exe, files):
@@ -46,10 +46,10 @@ def run_clang_format(clang_format_exe, files):
             for path, dirs, files in os.walk(target):
                 run_clang_format(clang_format_exe, (os.path.join(path, f) for f in files))
         elif target.endswith(accepted_file_extensions):
-            print "Format " + target
+            print("Format " + target)
             subprocess.check_call([clang_format_exe, '-i', '-style=file', target], stdout=open(os.devnull, 'wb'), stderr=subprocess.STDOUT)
         else:
-            print "Skip " + target
+            print("Skip " + target)
 
 def main(argv):
     check_command_line_args(argv)

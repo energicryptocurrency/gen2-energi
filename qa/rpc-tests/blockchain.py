@@ -33,7 +33,7 @@ class BlockchainTest(BitcoinTestFramework):
     """
 
     def setup_chain(self):
-        print("Initializing test directory " + self.options.tmpdir)
+        print(("Initializing test directory " + self.options.tmpdir))
         initialize_chain(self.options.tmpdir)
 
     def setup_network(self, split=False):
@@ -51,13 +51,13 @@ class BlockchainTest(BitcoinTestFramework):
         node = self.nodes[0]
         res = node.gettxoutsetinfo()
 
-        assert_equal(res[u'total_amount'], Decimal('98214.28571450'))
-        assert_equal(res[u'transactions'], 200)
-        assert_equal(res[u'height'], 200)
-        assert_equal(res[u'txouts'], 200)
-        assert_equal(res[u'bytes_serialized'], 14273),
-        assert_equal(len(res[u'bestblock']), 64)
-        assert_equal(len(res[u'hash_serialized']), 64)
+        assert_equal(res['total_amount'], Decimal('98214.28571450'))
+        assert_equal(res['transactions'], 200)
+        assert_equal(res['height'], 200)
+        assert_equal(res['txouts'], 200)
+        assert_equal(res['bytes_serialized'], 14273),
+        assert_equal(len(res['bestblock']), 64)
+        assert_equal(len(res['hash_serialized']), 64)
 
     def _test_getblockheader(self):
         node = self.nodes[0]

@@ -4,13 +4,16 @@
 #
 
 from .mininode import *
-import dbm
+try:
+    import dbm.ndbm as dbm
+except ImportError:
+    import dbm
 from io import BytesIO
 
 class BlockStore(object):
     def __init__(self, datadir):
         self.blockDB = dbm.open(datadir + "/blocks", 'c')
-        self.currentBlock = 0L
+        self.currentBlock = 0
         self.headers_map = dict()
     
     def close(self):
@@ -67,7 +70,7 @@ class BlockStore(object):
         try:
             self.blockDB[repr(block.sha256)] = bytes(block.serialize())
         except TypeError as e:
-            print "Unexpected error: ", sys.exc_info()[0], e.args
+            print("Unexpected error: ", sys.exc_info()[0], e.args)
         self.currentBlock = block.sha256
         self.headers_map[block.sha256] = CBlockHeader(block)
 
@@ -127,7 +130,7 @@ class TxStore(object):
         try:
             self.txDB[repr(tx.sha256)] = bytes(tx.serialize())
         except TypeError as e:
-            print "Unexpected error: ", sys.exc_info()[0], e.args
+            print("Unexpected error: ", sys.exc_info()[0], e.args)
 
     def get_transactions(self, inv):
         responses = []

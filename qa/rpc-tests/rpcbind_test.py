@@ -60,7 +60,7 @@ def run_test(tmpdir):
             break
     if non_loopback_ip is None:
         assert(not 'This test requires at least one non-loopback IPv4 interface')
-    print("Using interface %s for testing" % non_loopback_ip)
+    print(("Using interface %s for testing" % non_loopback_ip))
 
     defaultport = rpc_port(0)
 
@@ -116,7 +116,7 @@ def main():
     success = False
     nodes = []
     try:
-        print("Initializing test directory "+options.tmpdir)
+        print(("Initializing test directory "+options.tmpdir))
         if not os.path.isdir(options.tmpdir):
             os.makedirs(options.tmpdir)
         initialize_chain(options.tmpdir)
@@ -126,9 +126,9 @@ def main():
         success = True
 
     except AssertionError as e:
-        print("Assertion failed: "+e.message)
+        print(("Assertion failed: "+e.message))
     except Exception as e:
-        print("Unexpected exception caught during testing: "+str(e))
+        print(("Unexpected exception caught during testing: "+str(e)))
         traceback.print_tb(sys.exc_info()[2])
 
     if not options.nocleanup:

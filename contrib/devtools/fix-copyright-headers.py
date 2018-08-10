@@ -41,6 +41,6 @@ for folder in FOLDERS:
         if str(year) == git_date:
           # Only update if current year is not found
           if REGEX_CURRENT.search(open(file_path, "r").read()) is None:
-            print n,"Last git edit", git_date, "-", file_path
+            print(n,"Last git edit", git_date, "-", file_path)
             os.popen(CMD_REGEX % (year,file_path))
             n = n + 1
