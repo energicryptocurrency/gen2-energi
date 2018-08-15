@@ -350,7 +350,8 @@ namespace egihash
 		cache_loading,		/**< cache_loading is loading the cache from disk */
 		dag_generation,		/**< dag_generation is computing the DAG for a given epoch (block_number) */
 		dag_saving,			/**< dag_saving is saving the DAG to disk */
-		dag_loading			/**< dag_loading is loading the DAG from disk */
+        dag_loading,        /**< dag_loading is loading the DAG from disk */
+        dag_generateAndSave /**< dag_generateAndSave is generating and immediately saving the DAG to the disk */
 	};
 
 	/** \brief progress_callback_type is a function which may be passed to any phase of DAG/cache or generation to receive progress updates.
@@ -553,7 +554,7 @@ namespace egihash
 		*	\param block_number is the block number for which to generate a DAG.
 		*	\param callback (optional) may be used to monitor the progress of DAG generation. Return false to cancel, true to continue.
 		*/
-		dag_t(uint64_t const block_number, progress_callback_type = [](size_type, size_type, int){ return true; });
+        dag_t(uint64_t const block_number, progress_callback_type = [](size_type, size_type, int){ return true; });
 
 		/** \brief load a DAG from a file.
 		*
@@ -586,7 +587,16 @@ namespace egihash
 		*	\param file_path is the path to the file the DAG should be saved to.
 		*	\param callback (optional) may be used to monitor the progress of DAG saving. Return false to cancel, true to continue.
 		*/
-		void save(::std::string const & file_path, progress_callback_type callback = [](size_type, size_type, int){ return true; }) const;
+        void save(::std::string const & file_path, progress_callback_type callback = [](size_type, size_type, int){ return true; }) const;
+
+        /** \brief Generate and Save the DAG to a file fur future loading.
+        *
+        *	\param block_number is the block number for which the dag will be generated.
+        *	\param file_path is the path to the file the DAG should be saved to.
+        *	\param callback (optional) may be used to monitor the progress of DAG generation and saving progress.
+        *    Return false to cancel, true to continue.
+        */
+        static void generateAndSave(uint64_t block_number, ::std::string const & file_path, progress_callback_type callback = [](size_type, size_type, int){ return true; });
 
 		/** \brief Get the cache for this DAG.
 		*
@@ -620,6 +630,13 @@ namespace egihash
 		*	\return ::std::vector containing epoch numbers for DAGs that are already loaded.
 		*/
 		static ::std::vector<uint64_t> get_loaded();
+
+        /** \brief Checks if the DAG file is corrupted or no. It is checking if file exists and dag size is ok
+        *
+        *	\return returns false if dag file exists and size is ok,
+        *   otherwise dag is condiered as corrupted and true is returned
+        */
+        static bool is_dag_file_corrupted(std::string dag_file);
 
 		/** \brief dag_t private implementation.
 		*/
