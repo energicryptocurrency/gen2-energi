@@ -14,6 +14,7 @@
 #include "receiverequestdialog.h"
 #include "recentrequeststablemodel.h"
 #include "walletmodel.h"
+#include "requestsscrollbar.h"
 
 #include <QAction>
 #include <QCursor>
@@ -67,6 +68,11 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *platformStyle, QWidg
     connect(ui->clearButton, SIGNAL(clicked()), this, SLOT(clear()));
 }
 
+void ReceiveCoinsDialog::redraw()
+{
+    columnResizingFixer->stretchColumnWidth(RecentRequestsTableModel::Message);
+}
+
 void ReceiveCoinsDialog::setModel(WalletModel *model)
 {
     this->model = model;
@@ -79,9 +85,16 @@ void ReceiveCoinsDialog::setModel(WalletModel *model)
 
         QTableView* tableView = ui->recentRequestsView;
 
+
+        RequestsScrollBar* scrollBar = new RequestsScrollBar();
+        tableView->setVerticalScrollBar(scrollBar);
+        Q_ASSERT(connect(scrollBar, SIGNAL(painted()), this, SLOT(redraw())));
+
         tableView->verticalHeader()->hide();
         tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         tableView->setModel(model->getRecentRequestsTableModel());
+
+
         tableView->setAlternatingRowColors(true);
         tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
         tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
@@ -93,6 +106,7 @@ void ReceiveCoinsDialog::setModel(WalletModel *model)
             SLOT(recentRequestsView_selectionChanged(QItemSelection, QItemSelection)));
         // Last 2 columns are set by the columnResizingFixer, when the table geometry is ready.
         columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tableView, AMOUNT_MINIMUM_COLUMN_WIDTH, DATE_COLUMN_WIDTH, this);
+        
     }
 }
 

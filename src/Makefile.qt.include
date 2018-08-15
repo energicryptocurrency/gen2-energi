@@ -56,6 +56,7 @@ QT_MOC_CPP = \
   qt/moc_csvmodelwriter.cpp \
   qt/moc_darksendconfig.cpp \
   qt/moc_editaddressdialog.cpp \
+  qt/moc_requestsscrollbar.cpp \
   qt/moc_guiutil.cpp \
   qt/moc_intro.cpp \
   qt/moc_macdockiconhandler.cpp \
@@ -125,6 +126,7 @@ BITCOIN_QT_H = \
   qt/csvmodelwriter.h \
   qt/darksendconfig.h \
   qt/editaddressdialog.h \
+  qt/requestsscrollbar.h \
   qt/guiconstants.h \
   qt/guiutil.h \
   qt/intro.h \
@@ -427,6 +429,7 @@ BITCOIN_QT_CPP += \
   qt/coincontroltreewidget.cpp \
   qt/darksendconfig.cpp \
   qt/editaddressdialog.cpp \
+  qt/requestsscrollbar.cpp \
   qt/masternodelist.cpp \
   qt/openuridialog.cpp \
   qt/overviewpage.cpp \
