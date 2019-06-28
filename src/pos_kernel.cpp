@@ -5,17 +5,22 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <boost/assign/list_of.hpp>
-#include <boost/lexical_cast.hpp>
+#include "pos_kernel.h"
 
+#include "chain.h"
 #include "chainparams.h"
 #include "db.h"
-#include "pos_kernel.h"
 #include "script/interpreter.h"
+#include "primitives/block.h"
 #include "policy/policy.h"
 #include "timedata.h"
 #include "util.h"
+#include "uint256.h"
+#include "validation.h"
 #include "consensus/validation.h"
+
+#include <boost/assign/list_of.hpp>
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 

@@ -6,9 +6,19 @@
 #ifndef BITCOIN_KERNEL_H
 #define BITCOIN_KERNEL_H
 
+#include "amount.h"
 #include "streams.h"
-#include "validation.h"
 
+class CBlockIndex;
+class CBlockHeader;
+class CTransaction;
+class COutPoint;
+class CValidationState;
+class uint256;
+
+namespace Consensus {
+    class Params;
+}
 
 static constexpr CAmount MIN_STAKE_AMOUNT = COIN;
 static constexpr int64_t MAX_POS_BLOCK_AHEAD_TIME = 180;
