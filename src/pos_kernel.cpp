@@ -299,7 +299,7 @@ bool ComputeNextStakeModifierV2(const uint32_t blockTime, const CBlockIndex* pin
     const CBlockIndex* pmiddle = pindexPrev;
     for (; pmiddle->pprev && (pmiddle->pprev->nTime > timeMid); pmiddle = pmiddle->pprev);
 
-    const CBlockIndex* poldest = pindexPrev;
+    const CBlockIndex* poldest = pmiddle;
     for (; poldest->pprev && (poldest->pprev->nTime > timeOld); poldest = poldest->pprev);
 
     auto prevout = pindexPrev->StakeInput();

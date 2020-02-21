@@ -401,8 +401,8 @@ bool CBlockTreeDB::LoadBlockIndexGuts(
     // The original Energi logic, shortened to actual block confirmation count for faster startups
     for (auto i = LAST_BLOCKS_TO_CHECK; (i > 0) && (pindexNew != nullptr); --i, pindexNew = pindexNew->pprev) {
         if (!CheckProof(state, *pindexNew, Params().GetConsensus())) {
-            error("%s: CheckProof failed for %s",
-                  __func__, pindexNew->ToString().c_str());
+            error("%s: CheckProof failed for %s: %s",
+                  __func__, pindexNew->ToString().c_str(), state.GetRejectReason().c_str());
         }
     }
 
