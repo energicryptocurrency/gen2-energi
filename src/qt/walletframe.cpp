@@ -223,3 +223,10 @@ void WalletFrame::outOfSyncWarningClicked()
 {
     Q_EMIT requestedSyncWarningInfo();
 }
+
+void WalletFrame::startGen3Migration()
+{
+    WalletView *walletView = currentWalletView();
+    if (walletView)
+        walletView->startGen3Migration();
+}

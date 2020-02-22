@@ -22,6 +22,7 @@
 #include "wallet.h"
 #include "walletdb.h"
 #include "keepass.h"
+#include "gen3migrate.h"
 
 #include <stdint.h>
 
@@ -2892,6 +2893,42 @@ UniValue liststakeinputs(const JSONRPCRequest& request)
     return results;
 }
 
+UniValue gen3migrate(const JSONRPCRequest& request)
+{
+    if (!EnsureWalletIsAvailable(request.fHelp))
+        return NullUniValue;
+
+    if (request.fHelp || (request.params.size() < 1) || (request.params.size() > 2 ))
+        throw std::runtime_error(
+            "gen3migrate \"gen3account [dry_run]\"\n"
+            "\nMigrate current Gen 2 wallet to the specific Gen 3 address.\n"
+            "\nArguments:\n"
+            "1. gen3account    (string) Target Gen 3 account\n"
+            "2. dry_run        (boolean, default: false) Do no real claim\n"
+            "\nResult: boolean \n"
+            "\nExamples:\n"
+            + HelpExampleCli("gen3migrate", "0x...")
+            + HelpExampleRpc("gen3migrate", "0x...")
+        );
+
+    assert(pwalletMain != NULL);
+
+    EnsureWalletIsUnlocked();
+
+    auto &dst = request.params[0].get_str();
+    bool dry_run = false;
+
+    if (request.params.size() > 1) {
+        dry_run = request.params[1].get_bool();
+    }
+
+    Gen3Migrate(*pwalletMain).Migrate(dst, dry_run);
+
+    UniValue res(UniValue::VBOOL);
+    res.setBool(true);
+    return res;
+}
+
 extern UniValue dumpprivkey(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue importprivkey(const JSONRPCRequest& request);
 extern UniValue importaddress(const JSONRPCRequest& request);
@@ -2961,6 +2998,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "dumphdinfo",               &dumphdinfo,               true,   {} },
     { "wallet",             "importelectrumwallet",     &importelectrumwallet,     true,   {"filename", "index"} },
     { "wallet",             "liststakeinputs",          &liststakeinputs,          false,  {"obeyreserve"} },
+    { "wallet",             "gen3migrate",              &gen3migrate,              false,  {"gen3account", "dry_run"} },
 
     { "hidden",             "setbip69enabled",          &setbip69enabled,          true,   {} },
 };

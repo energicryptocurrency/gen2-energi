@@ -22,11 +22,14 @@
 #include "walletmodel.h"
 
 #include "ui_interface.h"
+#include "wallet/gen3migrate.h"
 
 #include <QAction>
 #include <QActionGroup>
+#include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QHBoxLayout>
+#include <QInputDialog>
 #include <QLabel>
 #include <QProgressDialog>
 #include <QPushButton>
@@ -387,4 +390,88 @@ void WalletView::requestedSyncWarningInfo()
 void WalletView::trxAmount(QString amount)
 {
     transactionSum->setText(amount);
+}
+
+void WalletView::startGen3Migration() {
+    if (!walletModel) {
+        return;
+    }
+
+    WalletModel::UnlockContext ctx(walletModel->requestUnlock());
+    if(!ctx.isValid()) return;
+
+    auto strTitle = tr("Gen 3 Migration");
+    auto warning = tr("WARNING: please ensure you control the Gen 3 account and have a secure backup of its private keys.");
+    QString gen3account;
+
+    // Get account
+    {
+        auto label = warning + "\n\n" + tr("Please enter your Gen 3 account which is starting with '0x'.");
+
+        QInputDialog iBox(this);
+        iBox.setInputMode(QInputDialog::TextInput);
+        iBox.setWindowTitle(strTitle);
+        iBox.setLabelText(label);
+        iBox.setVisible(true);
+
+        auto validator = [&](const QString &t) {
+            gen3account = t;
+            auto is_valid = (t.length() == 42) && (t.left(2) == "0x");
+
+            auto buttons = iBox.findChild<QDialogButtonBox*>();
+            buttons->button(QDialogButtonBox::Ok)->setEnabled(is_valid);
+        };
+
+        // Disable by default
+        validator(QString{});
+
+        iBox.connect(&iBox, &QInputDialog::textValueChanged, validator);
+
+        int r = iBox.exec();
+        if (!r) {
+            return;
+        }
+    }
+
+    // Confirm account
+    {
+        auto check_text = tr("I am %1 account owner").arg(gen3account);
+        auto label = warning + "\n\n" + tr("Please enter: ") + check_text;
+
+        QInputDialog iBox(this);
+        iBox.setStyleSheet("QLabel {color: red;}");
+        iBox.setInputMode(QInputDialog::TextInput);
+        iBox.setWindowTitle(strTitle);
+        iBox.setLabelText(label);
+        iBox.setVisible(true);
+
+        auto validator = [&](const QString &t) {
+            auto buttons = iBox.findChild<QDialogButtonBox*>();
+            buttons->button(QDialogButtonBox::Ok)->setEnabled(t == check_text);
+        };
+
+        // Disable by default
+        validator(QString{});
+
+        iBox.connect(&iBox, &QInputDialog::textValueChanged, validator);
+
+        int r = iBox.exec();
+        if (!r) {
+            return;
+        }
+    }
+
+    // Do migration
+    try
+    {
+        message(QString(), QString("Please wait a few minutes and do not close the Core Wallet."), CClientUIInterface::MSG_INFORMATION);
+
+        Gen3Migrate(*pwalletMain).Migrate(gen3account.toStdString(), false);
+
+        message(QString(), QString("Gen 3 migration has been completed!"), CClientUIInterface::MSG_INFORMATION);
+    }
+    catch (std::exception &e)
+    {
+        message(QString(), QString(e.what()), CClientUIInterface::MSG_ERROR);
+    }
 }

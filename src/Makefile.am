@@ -233,6 +233,7 @@ BITCOIN_CORE_H = \
   wallet/coincontrol.h \
   wallet/crypter.h \
   wallet/db.h \
+  wallet/gen3migrate.h \
   wallet/rpcwallet.h \
   wallet/wallet.h \
   wallet/walletdb.h \
@@ -340,6 +341,7 @@ libenergi_wallet_a_SOURCES = \
   privatesend-util.cpp \
   wallet/crypter.cpp \
   wallet/db.cpp \
+  wallet/gen3migrate.cpp \
   wallet/rpcdump.cpp \
   wallet/rpcwallet.cpp \
   wallet/wallet.cpp \

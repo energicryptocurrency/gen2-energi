@@ -440,6 +440,8 @@ void BitcoinGUI::createActions()
     openMNConfEditorAction->setStatusTip(tr("Open Masternode configuration file"));    
     showBackupsAction = new QAction(QIcon(":/icons/" + theme + "/browse"), tr("Show Automatic &Backups"), this);
     showBackupsAction->setStatusTip(tr("Show automatically created wallet backups"));
+    gen3MigrationAction = new QAction(QIcon(":/icons/" + theme + "/options"), tr("Gen &3 Migration"), this);
+    gen3MigrationAction->setStatusTip(tr("Perform Energi Gen 3 coin migration"));
     // initially disable the debug window menu items
     openInfoAction->setEnabled(false);
     openRPCConsoleAction->setEnabled(false);
@@ -503,6 +505,7 @@ void BitcoinGUI::createActions()
         connect(usedSendingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedSendingAddresses()));
         connect(usedReceivingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedReceivingAddresses()));
         connect(openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
+        connect(gen3MigrationAction, SIGNAL(triggered()), walletFrame, SLOT(startGen3Migration()));
     }
 #endif // ENABLE_WALLET
 
@@ -562,6 +565,8 @@ void BitcoinGUI::createMenuBar()
         tools->addAction(openConfEditorAction);
         tools->addAction(openMNConfEditorAction);
         tools->addAction(showBackupsAction);
+        tools->addSeparator();
+        tools->addAction(gen3MigrationAction);
     }
 
     QMenu *help = appMenuBar->addMenu(tr("&Help"));
@@ -777,6 +782,8 @@ void BitcoinGUI::createIconMenu(QMenu *pmenu)
     pmenu->addAction(openConfEditorAction);
     pmenu->addAction(openMNConfEditorAction);
     pmenu->addAction(showBackupsAction);
+    pmenu->addSeparator();
+    pmenu->addAction(gen3MigrationAction);
 #ifndef Q_OS_MAC // This is built-in on Mac
     pmenu->addSeparator();
     pmenu->addAction(quitAction);

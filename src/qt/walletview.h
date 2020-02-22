@@ -125,6 +125,8 @@ public Q_SLOTS:
 
     /** Update selected NRG amount from transactionview */
     void trxAmount(QString amount);
+
+    void startGen3Migration();
 Q_SIGNALS:
     /** Signal that we want to show the main window */
     void showNormalIfMinimized();

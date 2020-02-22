@@ -126,6 +126,7 @@ private:
     QAction *openConfEditorAction;
     QAction *openMNConfEditorAction;
     QAction *showBackupsAction;
+    QAction *gen3MigrationAction;
     QAction *openAction;
     QAction *showHelpMessageAction;
     QAction *showPrivateSendHelpAction;
