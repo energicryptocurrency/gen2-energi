@@ -12,6 +12,11 @@
 #include <event2/buffer.h>
 #include <event2/keyvalq_struct.h>
 
+extern "C"
+{
+#   include "crypto/keccak-tiny.h"
+}
+
 // A dirty have to avoid multiple definitions error due to how
 // that functionality was designed.
 // NOTE: could be anonymous, if that make predictable binaries
@@ -119,6 +124,58 @@ try
     auto gas = "0x7A120";
     auto gasPrice = "0x0";
 
+    std::string hash;
+    {
+        // hashToSig()
+        std::string txdata = "0x0a96cb49" + packed_dst;
+
+        LogPrintf("Gen3Migrate: hashToSig %s\n", txdata.c_str());
+
+        UniValue tx(UniValue::VOBJ);
+        tx.push_back(Pair("to", contract));
+        tx.push_back(Pair("data", txdata));
+
+        UniValue params(UniValue::VARR);
+        params.push_back(tx);
+        params.push_back(block);
+
+        hash = impl_->Call("eth_call", params).get_str().substr(2);
+
+        // NOTE: this is required to workaround MitM with plain HTTP
+        uint160 tmp_addr;
+        tmp_addr.SetHex(gen3_account.substr(2));
+        std::reverse(tmp_addr.begin(), tmp_addr.end());
+
+        uint8_t msg_to_sig[20+32+32];
+        uint8_t *pos = msg_to_sig;
+        memcpy(pos, tmp_addr.begin(), tmp_addr.size());
+        pos += tmp_addr.size();
+        memcpy(pos, "||Energi Gen 2 migration claim||", 32);
+        pos += 32;
+        memset(pos, 0, 30);
+        pos += 30;
+
+        if (Params().NetworkIDString() == CBaseChainParams::MAIN) {
+            *(pos++) = 0x9B;
+            *(pos++) = 0x75;
+        } else {
+            *(pos++) = 0xC2;
+            *(pos++) = 0x85;
+        }
+        assert(sizeof(msg_to_sig) == (pos - msg_to_sig));
+
+        uint256 raw_hash;
+        sha3_256(raw_hash.begin(), 32, msg_to_sig, (pos - msg_to_sig));
+        std::reverse(raw_hash.begin(), raw_hash.end());
+        auto req_hash = raw_hash.GetHex();
+
+        if (hash != req_hash) {
+            LogPrintf("Gen3Migrate: hash mismatch %s != %s\n",
+                          hash.c_str(), req_hash.c_str());
+            throw std::runtime_error("MitM attack on hashToSig()");
+        }
+    }
+
     for (auto &c : coin_items)
     {
         if (ShutdownRequested()) {
@@ -130,24 +187,6 @@ try
         snprintf(dst_item, sizeof(dst_item), "%064x", find_value(c, "ItemID").get_int());
 
         LogPrintf("Gen3Migrate: processing item %s owner %s\n", dst_item, raw_owner.c_str());
-
-        std::string hash;
-        {
-            // hashToSig()
-            std::string txdata = "0x0a96cb49" + packed_dst;
-
-            LogPrintf("Gen3Migrate: hashToSig %s\n", txdata.c_str());
-
-            UniValue tx(UniValue::VOBJ);
-            tx.push_back(Pair("to", contract));
-            tx.push_back(Pair("data", txdata));
-
-            UniValue params(UniValue::VARR);
-            params.push_back(tx);
-            params.push_back(block);
-
-            hash = impl_->Call("eth_call", params).get_str().substr(2);
-        }
 
         //---
         CKeyID key_id;
