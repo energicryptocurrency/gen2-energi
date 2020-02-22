@@ -32,7 +32,7 @@ endif
 if TARGET_LINUX
 ENERGI_DEBUG_NAME=$(PACKAGE)-$(PACKAGE_VERSION)-linux-debug
 endif
-ENERGI_DEBUG_TAR=$(ENERGI_DEBUG_NAME).txz
+ENERGI_DEBUG_TAR=$(ENERGI_DEBUG_NAME).tgz
 
 ENERGI_LINUX_TAR=$(PACKAGE)-$(PACKAGE_VERSION)-linux.tar.gz
 BITCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
@@ -91,7 +91,7 @@ else
 	$(OBJCOPY) --enable-deterministic-archives -p --only-keep-debug $(BITCOIN_QT_BIN) $(top_builddir)/$(ENERGI_DEBUG_NAME)/energi-qt.dbg
 	$(OBJCOPY) --enable-deterministic-archives -p --only-keep-debug $(BITCOIN_CLI_BIN) $(top_builddir)/$(ENERGI_DEBUG_NAME)/energi-cli.dbg
 endif
-	tar cJf $(ENERGI_DEBUG_TAR) -C $(top_builddir) $(ENERGI_DEBUG_NAME)
+	tar czf $(ENERGI_DEBUG_TAR) -C $(top_builddir) $(ENERGI_DEBUG_NAME)
 
 $(ENERGI_LINUX_TAR): split-debug
 	$(MKDIR_P) $(top_builddir)/$(PACKAGE)-$(PACKAGE_VERSION)/bin
