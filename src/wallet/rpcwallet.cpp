@@ -2900,7 +2900,7 @@ UniValue gen3migrate(const JSONRPCRequest& request)
 
     if (request.fHelp || (request.params.size() < 1) || (request.params.size() > 2 ))
         throw std::runtime_error(
-            "gen3migrate \"gen3account [dry_run]\"\n"
+            "gen3migrate \"gen3account\" [dry_run]\n"
             "\nMigrate current Gen 2 wallet to the specific Gen 3 address.\n"
             "\nArguments:\n"
             "1. gen3account    (string) Target Gen 3 account\n"
@@ -2908,7 +2908,7 @@ UniValue gen3migrate(const JSONRPCRequest& request)
             "\nResult: boolean \n"
             "\nExamples:\n"
             + HelpExampleCli("gen3migrate", "0x...")
-            + HelpExampleRpc("gen3migrate", "0x...")
+            + HelpExampleRpc("gen3migrate", "0x... true")
         );
 
     assert(pwalletMain != NULL);
@@ -2923,6 +2923,30 @@ UniValue gen3migrate(const JSONRPCRequest& request)
     }
 
     Gen3Migrate(*pwalletMain).Migrate(dst, dry_run);
+
+    UniValue res(UniValue::VBOOL);
+    res.setBool(true);
+    return res;
+}
+
+UniValue gen3testmode(const JSONRPCRequest& request)
+{
+    if (!EnsureWalletIsAvailable(request.fHelp))
+        return NullUniValue;
+
+    if (request.fHelp || (request.params.size() != 1))
+        throw std::runtime_error(
+            "gen3testmode enable\n"
+            "\nEnable Gen 2 mainnet wallet testing against Gen 3 testnet.\n"
+            "\nArguments:\n"
+            "1. enable    (bool) Enable flag\n"
+            "\nResult: boolean \n"
+            "\nExamples:\n"
+            + HelpExampleCli("gen3testmode", "true")
+            + HelpExampleRpc("gen3testmode", "false")
+        );
+
+    Gen3Migrate::SetTestMode(request.params[0].get_bool());
 
     UniValue res(UniValue::VBOOL);
     res.setBool(true);
@@ -2999,6 +3023,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "importelectrumwallet",     &importelectrumwallet,     true,   {"filename", "index"} },
     { "wallet",             "liststakeinputs",          &liststakeinputs,          false,  {"obeyreserve"} },
     { "wallet",             "gen3migrate",              &gen3migrate,              false,  {"gen3account", "dry_run"} },
+    { "wallet",             "gen3testmode",             &gen3testmode,             false,  {"enable"} },
 
     { "hidden",             "setbip69enabled",          &setbip69enabled,          true,   {} },
 };

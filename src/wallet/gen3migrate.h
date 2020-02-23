@@ -15,6 +15,8 @@ public:
     Gen3Migrate(CWallet &wallet);
     virtual ~Gen3Migrate();
     void Migrate(std::string gen3_account, bool dry_run);
+    static void SetTestMode(bool enable);
+    static bool IsMainnet();
 
 protected:
     virtual void OnError(const std::string&);
@@ -24,6 +26,8 @@ private:
 
     struct Impl;
     std::unique_ptr<Impl> impl_;
+
+    static bool s_testMode;
 };
 
 #endif // BITCOIN_WALLET_GEN3MIGRATE_H

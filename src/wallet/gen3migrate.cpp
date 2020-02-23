@@ -52,12 +52,23 @@ struct Gen3Migrate::Impl {
     std::string host_;
 };
 
+bool Gen3Migrate::s_testMode = false;
+
+void Gen3Migrate::SetTestMode(bool enable) {
+    s_testMode = enable;
+}
+
+bool Gen3Migrate::IsMainnet() {
+    return (Params().NetworkIDString() == CBaseChainParams::MAIN) && !s_testMode;
+}
+
+
 Gen3Migrate::Gen3Migrate(CWallet &wallet) :
     wallet_(wallet),
     impl_(new Impl)
 {
     impl_->evbase_ = obtain_event_base();
-    impl_->host_ = (Params().NetworkIDString() == CBaseChainParams::MAIN)
+    impl_->host_ = IsMainnet()
         ? GEN3_NODEAPI_MAINNET
         : GEN3_NODEAPI_TESTNET;
 
@@ -155,7 +166,7 @@ try
         memset(pos, 0, 30);
         pos += 30;
 
-        if (Params().NetworkIDString() == CBaseChainParams::MAIN) {
+        if (IsMainnet()) {
             *(pos++) = 0x9B;
             *(pos++) = 0x75;
         } else {

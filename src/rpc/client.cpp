@@ -170,6 +170,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "reservebalance", 1, "amount" },
     { "liststakeinputs", 0, "obeyreserve" },
     { "gen3migrate", 1, "dry_run" },
+    { "gen3testmode", 0, "enable" },
 };
 
 class CRPCConvertTable
