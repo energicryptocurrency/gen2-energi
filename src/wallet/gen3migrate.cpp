@@ -26,8 +26,9 @@ namespace gen3migrate {
 
 using namespace gen3migrate;
 
-#define GEN3_NODEAPI_MAINNET "nodeapi.gen3.energi.network"
-#define GEN3_NODEAPI_TESTNET "nodeapi.test3.energi.network"
+const char GEN3_NODEAPI_MAINNET[] = "nodeapi.gen3.energi.network";
+const char GEN3_NODEAPI_TESTNET[] = "nodeapi.test3.energi.network";
+const size_t GEN3_NODEAPI_SEARCH_MAX = 1000;
 
 struct Gen3Migrate::Impl {
     struct HTTPReply
@@ -102,31 +103,45 @@ try
 
     LogPrintf("Gen3Migrate: starting migration to %s\n", gen3_account.c_str());
 
-    UniValue search_params(UniValue::VARR);
+    std::map<CTxDestination, int64_t> mapKeyBirth;
+    wallet_.GetKeyBirthTimes(mapKeyBirth);
+    std::vector<UniValue> coin_items;
 
-    {
-        UniValue local_addresses(UniValue::VARR);
+    while (!mapKeyBirth.empty()) {
+        UniValue search_params(UniValue::VARR);
 
-        std::map<CTxDestination, int64_t> mapKeyBirth;
-        wallet_.GetKeyBirthTimes(mapKeyBirth);
+        {
+            UniValue local_addresses(UniValue::VARR);
 
-        for (const auto& entry : mapKeyBirth) {
-            if (const CKeyID* pk = boost::get<CKeyID>(&entry.first)) { // set and test
-                auto key_id = *pk;
-                std::reverse(key_id.begin(), key_id.end());
-                auto addr = std::string("0x") + key_id.GetHex();
-                local_addresses.push_back(addr);
-                LogPrintf("Gen3Migrate: found addr %s\n", addr.c_str());
+            for (auto i = GEN3_NODEAPI_SEARCH_MAX; i > 0 && !mapKeyBirth.empty(); --i) {
+                auto citer = mapKeyBirth.begin();
+
+                if (const CKeyID* pk = boost::get<CKeyID>(&citer->first)) { // set and test
+                    auto key_id = *pk;
+                    std::reverse(key_id.begin(), key_id.end());
+                    auto addr = std::string("0x") + key_id.GetHex();
+                    local_addresses.push_back(addr);
+                    LogPrintf("Gen3Migrate: found addr %s\n", addr.c_str());
+                }
+
+                mapKeyBirth.erase(citer);
             }
+
+            search_params.push_back(local_addresses);
+            search_params.push_back(false);
+
+            LogPrintf("Gen3Migrate: calling search with %llu addresses\n", local_addresses.size());
         }
 
-        search_params.push_back(local_addresses);
-        search_params.push_back(false);
+        auto res = impl_->Call("energi_searchRawGen2Coins", search_params, 300).getValues();
+        coin_items.insert(
+            coin_items.end(),
+            std::make_move_iterator(res.begin()),
+            std::make_move_iterator(res.end())
+        );
 
-        LogPrintf("Gen3Migrate: calling search with %llu addresses\n", mapKeyBirth.size());
+        LogPrintf("Gen3Migrate: search found %llu addresses\n", res.size());
     }
-
-    auto coin_items = impl_->Call("energi_searchRawGen2Coins", search_params, 300).getValues();
 
     auto packed_dst = std::string(24, '0') + gen3_account.substr(2);
     auto contract = "0x0000000000000000000000000000000000000308";
