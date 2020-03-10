@@ -346,10 +346,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SPORK17].nThreshold = 75; // 50% of 100
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000016cd3fd9b99c8529a");
+        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000068567ac396c6ab768");
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0x0099fdea7d3b184ae7a4a10b114e384d76eeca520d95bdbe6cc1934c0bc6bf10");
+        consensus.defaultAssumeValid = uint256S("0x6a558d604e0760e4b6990a70a83786bfbb28c57ea9569984bb4186c5a24b6278");
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -448,6 +448,8 @@ public:
             ( 500000, uint256S("0xfa92bd32635288eca40363395d1bba4858c435d932d6d7ef717dd8095f9dbf3d"))
             ( 585000, uint256S("0xdac8c2ec27a7024fe4a0fbc3c11c0b2f509e6689fa19e59a1a895af716ba4696"))
             ( 750000, uint256S("0xffd36d48b85d8486ce2dae20e9e35df31d26a7706e798e7c65b61c226a239aa0"))
+            (1108550, uint256S("0x6a558d604e0760e4b6990a70a83786bfbb28c57ea9569984bb4186c5a24b6278"))
+            (1108551, uint256S("0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff"))
 
             // Blacklist
             ,
@@ -455,10 +457,10 @@ public:
      };
 
         chainTxData = ChainTxData{
-            1566151321,     // * UNIX timestamp of last known number of transactions
-            1387004,        // * total number of transactions between genesis and that timestamp
+            1583850974,     // * UNIX timestamp of last known number of transactions
+            3877096,        // * total number of transactions between genesis and that timestamp
                             //   (the tx=... number in the SetBestChain debug.log lines)
-            0.0479          // * estimated number of transactions per second after that timestamp
+            0.2356          // * estimated number of transactions per second after that timestamp
         };
     }
 };
